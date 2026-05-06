@@ -7,6 +7,7 @@ from django.urls import reverse
 from apps.coupons.services import (
     apply_coupon,
     clear_applied_coupon,
+    format_coupon_hint,
     find_best_auto_coupon,
     get_applied_coupon_code,
     get_applied_coupon_is_auto,
@@ -60,6 +61,7 @@ def cart_view(request):
         Decimal("0.01"), rounding=ROUND_HALF_UP
     )
     coupon_free_shipping = bool(coupon_app and coupon_app.promo and coupon_app.free_shipping)
+    coupon_hint = format_coupon_hint(coupon_app.promo) if (coupon_app and coupon_app.promo) else ""
 
     qualifies_for_free_shipping = bool(
         (coupon_free_shipping) or (free_shipping_enabled and total_amount >= free_shipping_threshold)
@@ -80,6 +82,7 @@ def cart_view(request):
             "cart_discount_amount": discount_amount,
             "cart_has_discount": bool(discount_amount > 0),
             "cart_coupon_code": coupon_code or "",
+            "cart_coupon_hint": coupon_hint,
             "cart_coupon_error": coupon_error,
             "cart_coupon_free_shipping": coupon_free_shipping,
             "cart_free_shipping_enabled": free_shipping_enabled,
@@ -118,6 +121,7 @@ def apply_coupon_ajax(request):
         {
             "ok": True,
             "code": code,
+            "coupon_hint": format_coupon_hint(app.promo),
             "discount_amount": str(discount_amount),
             "shipping_amount": str(shipping_amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
             "total_amount": str(total),

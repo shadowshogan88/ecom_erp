@@ -157,7 +157,10 @@
             <p class="mt-2 text-xs text-gray-500">চেষ্টা করুন: STRIDE20 (২০% ছাড়)</p>
 
             <p id="coupon-error" class="mt-2 text-xs text-red-600{% if not cart_coupon_error %} hidden{% endif %}">{{ cart_coupon_error }}</p>
-            <p id="coupon-applied" class="mt-2 text-xs text-green-600{% if not cart_coupon_code %} hidden{% endif %}">কুপন ব্যবহার হচ্ছে: <span class="font-semibold">{{ cart_coupon_code }}</span></p>
+            <p id="coupon-applied" class="mt-2 text-xs text-green-600{% if not cart_coupon_code %} hidden{% endif %}">
+              কুপন ব্যবহার হচ্ছে: <span class="font-semibold">{{ cart_coupon_code }}</span>
+              {% if cart_coupon_hint %}<span class="text-gray-500 dark:text-gray-400">({{ cart_coupon_hint }})</span>{% endif %}
+            </p>
           </div>
 
           <!-- Summary -->
@@ -168,7 +171,7 @@
             </div>
 
             <div id="cart-discount-row" class="flex justify-between text-sm{% if not cart_has_discount %} hidden{% endif %}">
-              <span class="text-gray-600 dark:text-gray-400">ডিসকাউন্ট{% if cart_coupon_code %} ({{ cart_coupon_code }}){% endif %}</span>
+              <span class="text-gray-600 dark:text-gray-400" id="cart-discount-label">ডিসকাউন্ট{% if cart_coupon_hint %} ({{ cart_coupon_hint }}){% endif %}</span>
               <span class="font-medium text-gray-900 dark:text-white" id="cart-discount">- ${{ cart_discount_amount|default:"0.00" }}</span>
             </div>
 
@@ -297,10 +300,36 @@
       errorEl.classList.toggle("hidden", !msg);
     };
 
-    const showApplied = (code) => {
+    const setDiscountLabel = (hint) => {
+      const labelEl = document.getElementById("cart-discount-label");
+      if (!labelEl) return;
+      const cleanHint = (hint || "").trim();
+      labelEl.textContent = cleanHint ? `ডিসকাউন্ট (${cleanHint})` : "ডিসকাউন্ট";
+    };
+
+    const showApplied = (code, hint) => {
       if (!appliedEl) return;
-      appliedEl.classList.toggle("hidden", !code);
-      appliedEl.textContent = code ? `কুপন ব্যবহার হচ্ছে: ${code}` : "";
+      const cleanCode = (code || "").trim();
+      const cleanHint = (hint || "").trim();
+
+      appliedEl.classList.toggle("hidden", !cleanCode);
+      appliedEl.textContent = "";
+      if (!cleanCode) return;
+
+      appliedEl.appendChild(document.createTextNode("কুপন ব্যবহার হচ্ছে: "));
+
+      const codeSpan = document.createElement("span");
+      codeSpan.className = "font-semibold";
+      codeSpan.textContent = cleanCode;
+      appliedEl.appendChild(codeSpan);
+
+      if (cleanHint) {
+        appliedEl.appendChild(document.createTextNode(" "));
+        const hintSpan = document.createElement("span");
+        hintSpan.className = "text-gray-500 dark:text-gray-400";
+        hintSpan.textContent = `(${cleanHint})`;
+        appliedEl.appendChild(hintSpan);
+      }
     };
 
     const ensureRemoveButton = () => {
@@ -317,7 +346,9 @@
       return btn;
     };
 
-    const updateTotals = ({ discount_amount, shipping_amount, total_amount, free_shipping }) => {
+    const updateTotals = ({ discount_amount, shipping_amount, total_amount, free_shipping, coupon_hint }) => {
+      if (typeof coupon_hint === "string") setDiscountLabel(coupon_hint);
+
       if (typeof discount_amount === "string") {
         const row = document.getElementById("cart-discount-row");
         if (row) {
@@ -364,7 +395,7 @@
         }
         const appliedCode = (data.code || code).toUpperCase();
         couponInput.value = appliedCode;
-        showApplied(appliedCode);
+        showApplied(appliedCode, data.coupon_hint);
         updateTotals(data);
         const rb = ensureRemoveButton();
         attachRemove(rb);
@@ -388,7 +419,8 @@
           return;
         }
         if (couponInput) couponInput.value = "";
-        showApplied("");
+        showApplied("", "");
+        setDiscountLabel("");
         const row = document.getElementById("cart-discount-row");
         if (row) row.classList.add("hidden");
         const freeMsg = document.getElementById("free-shipping-msg");

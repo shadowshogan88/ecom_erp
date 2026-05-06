@@ -14,6 +14,56 @@ from .models import PromoCode, PromoRedemption
 COUPON_SESSION_KEY = "applied_coupon_code"
 COUPON_SESSION_AUTO_KEY = "applied_coupon_is_auto"
 
+_BN_DIGITS_TRANSLATION = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
+
+def to_bangla_digits(value: str) -> str:
+    return (value or "").translate(_BN_DIGITS_TRANSLATION)
+
+
+def _trim_decimal(value: Decimal) -> str:
+    """
+    Formats a Decimal without trailing zeros (e.g. 20.00 -> "20", 20.50 -> "20.5").
+    """
+    s = format(Decimal(value or 0), "f")
+    if "." in s:
+        s = s.rstrip("0").rstrip(".")
+    return s
+
+
+def format_coupon_hint(promo: PromoCode | None) -> str:
+    if not promo:
+        return ""
+
+    try:
+        dtype = promo.discount_type
+    except Exception:
+        return ""
+
+    if dtype == PromoCode.DiscountType.PERCENT:
+        pct = Decimal(promo.percent_off or 0)
+        if pct <= 0:
+            return ""
+        return f"{to_bangla_digits(_trim_decimal(pct))}% ছাড়"
+
+    if dtype == PromoCode.DiscountType.FIXED:
+        amt = Decimal(promo.amount_off or 0)
+        if amt <= 0:
+            return ""
+        return f"${to_bangla_digits(_trim_decimal(amt))} ছাড়"
+
+    if dtype == PromoCode.DiscountType.BXGY:
+        buy_qty = int(promo.bxgy_buy_qty or 0)
+        get_qty = int(promo.bxgy_get_qty or 0)
+        if buy_qty <= 0 or get_qty <= 0:
+            return ""
+        return f"{to_bangla_digits(str(buy_qty))}টি কিনলে {to_bangla_digits(str(get_qty))}টি ফ্রি"
+
+    if dtype == PromoCode.DiscountType.FREE_SHIPPING:
+        return "ফ্রি শিপিং"
+
+    return ""
+
 
 def normalize_code(code: str) -> str:
     return (code or "").strip().upper()
