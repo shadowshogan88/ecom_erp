@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="relative overflow-hidden bg-gray-950 py-20">
+  <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-primary-950"></div>
+  <div class="relative mx-auto max-w-7xl px-4 lg:px-8">
+    <div class="grid items-center gap-10 lg:grid-cols-2">
+      <div class="text-center lg:text-left">
+        <span class="inline-flex items-center gap-2 rounded-full bg-primary-500/10 px-4 py-1.5 text-sm font-medium text-primary-400">
+          Premium Footwear
+        </span>
+        <h1 class="mt-6 font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">Step Into Style</h1>
+        <p class="mt-6 text-lg text-gray-300">Premium footwear for every step of your journey.</p>
+        <div class="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+          <a href="{% url 'products:list' %}" class="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-8 py-4 font-semibold text-white transition-colors hover:bg-primary-700 sm:w-auto">
+            Shop Now
+          </a>
+          <a href="{% url 'orders:track-order' %}" class="inline-flex w-full items-center justify-center rounded-xl bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur transition-colors hover:bg-white/20 sm:w-auto">
+            Track Order
+          </a>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="rounded-3xl bg-white/5 p-6 backdrop-blur">
+          <div class="text-sm font-medium text-gray-300">Latest drops</div>
+          <div class="mt-2 text-3xl font-bold text-white">{{ latest_products|length }}</div>
+          <div class="mt-1 text-sm text-gray-400">Products available</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-12 lg:py-16">
+  <div class="mx-auto max-w-7xl px-4 lg:px-8">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h2 class="font-display text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">Featured Products</h2>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">New arrivals and customer favorites.</p>
+      </div>
+      <a href="{% url 'products:list' %}" class="inline-flex items-center gap-2 font-medium text-primary-600 transition-colors hover:text-primary-700">
+        View all
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </a>
+    </div>
+
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {% for product in latest_products %}
+        <div class="group relative">
+          <a href="{% url 'products:detail' slug=product.slug %}" class="block overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800">
+            <div class="relative aspect-square">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+              {% else %}
+                <div class="flex h-full w-full items-center justify-center text-sm text-gray-500">No image</div>
+              {% endif %}
+            </div>
+          </a>
+          <div class="mt-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <h3 class="mt-1 truncate font-medium text-gray-900 dark:text-white">
+                  <a href="{% url 'products:detail' slug=product.slug %}" class="hover:text-primary-600">{{ product.name }}</a>
+                </h3>
+              </div>
+              <div class="shrink-0 text-right">
+                <div class="font-semibold text-gray-900 dark:text-white">${{ product.price }}</div>
+              </div>
+            </div>
+            <form method="post" action="{% url 'orders:add-to-cart' product_public_id=product.public_id %}" class="mt-4">
+              {% csrf_token %}
+              <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
+                Add to Cart
+              </button>
+            </form>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-span-full rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
+          No products yet. Add some products from the admin panel.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+

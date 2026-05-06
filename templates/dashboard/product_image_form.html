@@ -1,0 +1,52 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Add Image{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Add Image</h1>
+      <div class="text-muted small">{{ product.name }} • {{ product.public_id }}</div>
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-product-edit' public_id=product.public_id %}">Back</a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% if form.errors %}
+        <div class="alert alert-danger">Please fix the errors below.</div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Image</label>
+            {{ form.image.errors }}
+            {{ form.image }}
+          </div>
+          <div class="col-12 col-lg-8">
+            <label class="form-label">Alt text</label>
+            {{ form.alt_text.errors }}
+            {{ form.alt_text }}
+          </div>
+          <div class="col-12 col-lg-2">
+            <label class="form-label">Sort order</label>
+            {{ form.sort_order.errors }}
+            {{ form.sort_order }}
+          </div>
+          <div class="col-12 col-lg-2">
+            <label class="form-label">Primary</label>
+            {{ form.is_primary.errors }}
+            <div class="form-check">
+              {{ form.is_primary }}
+              <label class="form-check-label" for="{{ form.is_primary.id_for_label }}">Set primary</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-primary">Upload</button>
+          <a class="btn btn-outline-secondary" href="{% url 'dashboard-product-edit' public_id=product.public_id %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

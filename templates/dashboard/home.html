@@ -1,0 +1,152 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h4 mb-0">Dashboard Overview</h1>
+    <div class="text-muted small">Last 14 days</div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Revenue</div>
+          <div class="fs-4 fw-semibold">{{ total_revenue }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Orders</div>
+          <div class="fs-4 fw-semibold">{{ total_orders }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card stat-card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Customers</div>
+          <div class="fs-4 fw-semibold">{{ total_customers }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <strong>Sales Analytics</strong>
+          <span class="text-muted small ms-2">(Revenue)</span>
+        </div>
+        <div class="card-body">
+          <canvas id="salesChart" height="110"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white"><strong>Notifications</strong></div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for n in unread_notifications %}
+              <li class="list-group-item">
+                <div class="small text-muted">{{ n.notification_type }}</div>
+                {% if n.url %}
+                  <div class="fw-semibold"><a href="{{ n.url }}" class="text-decoration-none">{{ n.title }}</a></div>
+                {% else %}
+                  <div class="fw-semibold">{{ n.title }}</div>
+                {% endif %}
+                {% if n.message %}<div class="small text-muted">{{ n.message }}</div>{% endif %}
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">No notifications.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-white"><strong>Low Stock</strong></div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for i in low_stock %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ i.product.name }}</div>
+                  <div class="text-muted small">Reorder: {{ i.reorder_level }}</div>
+                </div>
+                <span class="badge text-bg-danger">Qty {{ i.quantity_on_hand }}</span>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted">No low stock alerts.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-3">
+    <div class="card-header bg-white"><strong>Recent Orders</strong></div>
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th class="text-end">Amount</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in recent_orders %}
+            <tr>
+              <td>{{ o.public_id }}</td>
+              <td>{{ o.customer.username }}</td>
+              <td>{{ o.status }}</td>
+              <td>{{ o.payment_status }}</td>
+              <td class="text-end">{{ o.total_amount }}</td>
+              <td class="text-muted small">{{ o.created_at }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="text-muted">No orders yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const labels = {{ chart_labels_json|safe }};
+    const values = {{ chart_values_json|safe }};
+    const ctx = document.getElementById('salesChart');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Revenue',
+          data: values,
+          borderColor: '#0d6efd',
+          backgroundColor: 'rgba(13,110,253,0.15)',
+          fill: true,
+          tension: 0.25
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  </script>
+{% endblock %}

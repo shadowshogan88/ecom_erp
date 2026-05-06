@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Track Order{% endblock %}
+{% block content %}
+<section class="py-12 lg:py-16">
+  <div class="mx-auto max-w-xl px-4 lg:px-8">
+    <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:p-8">
+      <h1 class="font-display text-2xl font-bold text-gray-900 dark:text-white">Track your order</h1>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">Enter your order ID (example: <span class="font-medium">ORD-1/04-26</span>).</p>
+
+      <form method="post" class="mt-6 space-y-4">
+        {% csrf_token %}
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Order ID</label>
+          <input name="order_id" type="text" placeholder="ORD-..." class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+        </div>
+        <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-700">
+          Track
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

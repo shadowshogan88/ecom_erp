@@ -1,0 +1,223 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{% if is_create %}Add Product{% else %}Edit Product{% endif %}{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">{% if is_create %}Add Product{% else %}Edit Product{% endif %}</h1>
+      {% if product %}
+        <div class="text-muted small">{{ product.public_id }}{% if product.slug %} • {{ product.slug }}{% endif %}</div>
+      {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-products' %}">Back</a>
+      {% if product and product.slug %}
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'products:detail' slug=product.slug %}" target="_blank">View on store</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Product</strong></div>
+    <div class="card-body">
+      {% if form.errors %}
+        <div class="alert alert-danger">Please fix the errors below.</div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Name</label>
+            {{ form.name.errors }}
+            {{ form.name }}
+          </div>
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Slug</label>
+            {{ form.slug.errors }}
+            {{ form.slug }}
+            <div class="form-text">Leave blank to auto-generate.</div>
+          </div>
+
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Category</label>
+            {{ form.category.errors }}
+            {{ form.category }}
+          </div>
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Active</label>
+            {{ form.is_active.errors }}
+            <div class="form-check">
+              {{ form.is_active }}
+              <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Visible in store</label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            {{ form.description.errors }}
+            {{ form.description }}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Price</label>
+            {{ form.price.errors }}
+            {{ form.price }}
+          </div>
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Discount Type</label>
+            {{ form.discount_type.errors }}
+            {{ form.discount_type }}
+          </div>
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Discount Value</label>
+            {{ form.discount_value.errors }}
+            {{ form.discount_value }}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Main Image</label>
+            {{ form.image.errors }}
+            {{ form.image }}
+            {% if product and product.image %}
+              <div class="mt-2">
+                <img src="{{ product.image.url }}" alt="" style="height: 72px; width: 72px; object-fit: cover;" class="rounded border">
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </form>
+      {% if product %}
+        <form class="mt-2" method="post" action="{% url 'dashboard-product-delete' public_id=product.public_id %}">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')">Delete product</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if product %}
+    <div class="row g-3">
+      <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>Inventory</strong>
+            <span class="text-muted small">Manual adjust</span>
+          </div>
+          <div class="card-body">
+            {% if inventory_form %}
+              <form method="post" action="{% url 'dashboard-product-inventory' public_id=product.public_id %}">
+                {% csrf_token %}
+                <div class="mb-2">
+                  <label class="form-label">Quantity on hand</label>
+                  {{ inventory_form.quantity_on_hand }}
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Reorder level</label>
+                  {{ inventory_form.reorder_level }}
+                </div>
+                <button class="btn btn-sm btn-primary w-100">Update stock</button>
+              </form>
+            {% else %}
+              <div class="text-muted">No inventory row.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-8">
+        <div class="card shadow-sm mb-3">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>Variants</strong>
+            <div class="d-flex gap-2">
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-product-variant-generator' public_id=product.public_id %}">Variant Generator</a>
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard-product-variant-create' public_id=product.public_id %}">Add Variant</a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Size</th>
+                  <th>Color</th>
+                  <th class="text-end">Price Override</th>
+                  <th>Active</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for v in variants %}
+                  <tr>
+                    <td class="fw-semibold">{{ v.sku }}</td>
+                    <td>{{ v.size|default:"-" }}</td>
+                    <td>{{ v.color|default:"-" }}</td>
+                    <td class="text-end">{% if v.price_override != None %}{{ v.price_override }}{% else %}-{% endif %}</td>
+                    <td>{% if v.is_active %}Yes{% else %}No{% endif %}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard-product-variant-edit' public_id=product.public_id variant_id=v.id %}">Edit</a>
+                      <form method="post" action="{% url 'dashboard-product-variant-delete' public_id=product.public_id variant_id=v.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this variant?')">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="6" class="text-muted">No variants yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>Images</strong>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard-product-image-create' public_id=product.public_id %}">Add Image</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>Preview</th>
+                  <th>Alt</th>
+                  <th class="text-end">Sort</th>
+                  <th>Primary</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for img in images %}
+                  <tr>
+                    <td>
+                      <img src="{{ img.image.url }}" alt="" style="height: 44px; width: 44px; object-fit: cover;" class="rounded border">
+                    </td>
+                    <td class="text-muted small">{{ img.alt_text|default:"-" }}</td>
+                    <td class="text-end">{{ img.sort_order }}</td>
+                    <td>{% if img.is_primary %}<span class="badge text-bg-success">Primary</span>{% else %}-{% endif %}</td>
+                    <td class="text-end">
+                      {% if not img.is_primary %}
+                        <form method="post" action="{% url 'dashboard-product-image-primary' public_id=product.public_id image_id=img.id %}" class="d-inline">
+                          {% csrf_token %}
+                          <button class="btn btn-sm btn-outline-secondary">Make Primary</button>
+                        </form>
+                      {% endif %}
+                      <form method="post" action="{% url 'dashboard-product-image-delete' public_id=product.public_id image_id=img.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this image?')">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="5" class="text-muted">No images yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

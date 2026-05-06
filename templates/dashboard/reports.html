@@ -1,0 +1,90 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h3 class="mb-0">Reports</h3>
+      <div class="text-muted small">Orders report ({{ range_label }})</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboard-reports' %}?period=daily">Daily</a>
+      <a class="btn btn-outline-secondary" href="{% url 'dashboard-reports' %}?period=weekly">Weekly</a>
+      <a class="btn btn-outline-secondary" href="{% url 'dashboard-reports' %}?period=monthly">Monthly</a>
+      <a class="btn btn-primary" href="{% url 'dashboard-reports-pdf' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Export PDF</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" method="get">
+        <div class="col-md-3">
+          <label class="form-label">Period</label>
+          <select name="period" class="form-select">
+            <option value="daily" {% if period == "daily" %}selected{% endif %}>Daily</option>
+            <option value="weekly" {% if period == "weekly" %}selected{% endif %}>Weekly</option>
+            <option value="monthly" {% if period == "monthly" %}selected{% endif %}>Monthly</option>
+            <option value="custom" {% if period == "custom" %}selected{% endif %}>Custom</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Start date</label>
+          <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">End date</label>
+          <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-outline-primary" type="submit">Apply</button>
+          <a class="btn btn-outline-secondary" href="{% url 'dashboard-reports' %}">Reset</a>
+        </div>
+      </form>
+      <hr class="my-3"/>
+      <div class="d-flex flex-wrap gap-3">
+        <div><strong>Total orders:</strong> {{ total_count }}</div>
+        <div><strong>Total amount:</strong> {{ total_amount }}</div>
+      </div>
+      <div class="text-muted small mt-2">Showing first 500 orders (PDF export includes up to 2000 rows).</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th class="text-end">Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in orders %}
+              <tr>
+                <td>{{ o.created_at|date:"Y-m-d" }}</td>
+                <td>{{ o.public_id }}</td>
+                <td>{{ o.customer.username }}</td>
+                <td>{{ o.status }}</td>
+                <td>{{ o.payment_status }}</td>
+                <td class="text-end">{{ o.total_amount }}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-order-detail' o.public_id %}">View</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" class="text-center text-muted py-4">No data for this range.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

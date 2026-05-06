@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<section class="bg-gray-50 py-4 dark:bg-gray-900/50">
+  <div class="mx-auto max-w-7xl px-4 lg:px-8">
+    <nav class="text-sm">
+      <ol class="flex flex-wrap items-center gap-2">
+        <li><a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Home</a></li>
+        <li class="text-gray-400">/</li>
+        <li><a href="{% url 'products:list' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Shop</a></li>
+        <li class="text-gray-400">/</li>
+        <li class="font-medium text-gray-900 dark:text-white">{{ product.name }}</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<section class="py-8 lg:py-12">
+  <div class="mx-auto max-w-7xl px-4 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-2 lg:gap-12">
+      <div class="space-y-4">
+        <div class="relative overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800">
+          {% if gallery_images %}
+            <img id="product-main-image" src="{{ gallery_images.0.url }}" alt="{{ product.name }}" class="aspect-square w-full object-cover">
+          {% elif product.image %}
+            <img id="product-main-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="aspect-square w-full object-cover">
+          {% else %}
+            <div class="flex aspect-square w-full items-center justify-center text-sm text-gray-500">No image</div>
+          {% endif %}
+        </div>
+
+        {% if gallery_images|length > 1 %}
+          <div class="flex gap-3 overflow-x-auto pb-1">
+            {% for img in gallery_images %}
+              <button type="button" class="group relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all hover:border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600{% if forloop.first %} ring-2 ring-primary-500/30 border-primary-500{% endif %}" data-image-thumb="{{ img.url }}" aria-label="Preview image {{ forloop.counter }}">
+                <img src="{{ img.url }}" alt="{{ img.alt|default:product.name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
+            <h1 class="break-words font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">{{ product.name }}</h1>
+            <p class="mt-2 break-words text-sm text-gray-500 dark:text-gray-400">{{ product.public_id }}</p>
+          </div>
+          <div class="sm:text-right">
+            {% if product.discount_type != 'none' and product.discount_value %}
+              <div class="font-display text-3xl font-bold text-gray-900 dark:text-white">${{ product.final_price }}</div>
+              <div class="text-sm text-gray-500 line-through dark:text-gray-400">${{ product.price }}</div>
+            {% else %}
+              <div class="font-display text-3xl font-bold text-gray-900 dark:text-white">${{ product.price }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if product.description %}
+          <p class="mt-6 text-gray-600 dark:text-gray-400">{{ product.description }}</p>
+        {% endif %}
+
+        {% if color_options %}
+          <div class="mt-8">
+            <h3 class="mb-3 font-semibold text-gray-900 dark:text-white">
+              Color: <span id="selected-color" class="font-normal text-gray-600 dark:text-gray-400">{{ selected_color|default:color_options.0.value }}</span>
+            </h3>
+            <div class="flex flex-wrap gap-3" id="color-options">
+              {% for c in color_options %}
+                <button
+                  type="button"
+                  class="color-option relative h-10 w-10 rounded-full border-2 transition-all {% if c.value == selected_color %}border-primary-500 ring-2 ring-primary-500/30{% else %}border-gray-300 hover:border-gray-400 dark:border-gray-600{% endif %}"
+                  style="background-color: {% if c.color_code %}{{ c.color_code }}{% else %}#e5e7eb{% endif %}"
+                  title="{{ c.value }}"
+                  data-color="{{ c.value }}"
+                  data-color-code="{{ c.color_code|default:'' }}"
+                  data-color-image="{% if c.image_url %}{{ c.image_url }}{% endif %}"
+                >
+                  {% if c.value == selected_color %}
+                    <span class="absolute inset-0 rounded-full border border-gray-300"></span>
+                  {% endif %}
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if size_options %}
+          <div class="mt-8">
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="font-semibold text-gray-900 dark:text-white">
+                Select Size
+                {% if selected_size %}<span class="ms-2 text-sm font-normal text-gray-600 dark:text-gray-400">( <span id="selected-size">{{ selected_size }}</span> )</span>{% endif %}
+              </h3>
+              <button type="button" class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400" id="size-guide-btn">
+                Size Guide
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2" id="size-options">
+              {% for s in size_options %}
+                <button
+                  type="button"
+                  class="size-option flex h-12 w-12 items-center justify-center rounded-lg border-2 text-sm font-medium transition-all {% if s.value == selected_size %}border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400{% else %}border-gray-300 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300{% endif %}"
+                  data-size="{{ s.value }}"
+                >
+                  {{ s.value }}
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'orders:add-to-cart' product_public_id=product.public_id %}" class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          {% csrf_token %}
+          <input type="hidden" name="selected_color" id="selected-color-input" value="{{ selected_color }}">
+          <input type="hidden" name="selected_size" id="selected-size-input" value="{{ selected_size }}">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Qty</label>
+            <input name="quantity" type="number" min="1" value="1" class="w-24 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
+          </div>
+          <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-700">
+            Add to Cart
+          </button>
+        </form>
+
+        <div class="mt-6">
+          <a href="{% url 'orders:cart' %}" class="inline-flex items-center gap-2 font-medium text-primary-600 transition-colors hover:text-primary-700">
+            Go to cart
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{{ variants_data|json_script:"variants-data" }}
+{{ availability_data|json_script:"availability-data" }}
+
+<script type="module">
+  const variants = JSON.parse(document.getElementById("variants-data").textContent || "[]");
+  const availability = JSON.parse(document.getElementById("availability-data").textContent || "{}");
+
+  const mainImage = document.getElementById("product-main-image");
+  const thumbs = document.querySelectorAll("[data-image-thumb]");
+  const colorButtons = document.querySelectorAll(".color-option");
+  const sizeButtons = document.querySelectorAll(".size-option");
+
+  const selectedColorSpan = document.getElementById("selected-color");
+  const selectedSizeSpan = document.getElementById("selected-size");
+  const selectedColorInput = document.getElementById("selected-color-input");
+  const selectedSizeInput = document.getElementById("selected-size-input");
+
+  const normalize = (s) => String(s || "").trim().toLowerCase();
+
+  let selectedColor = normalize(selectedColorInput ? selectedColorInput.value : "");
+  let selectedSize = normalize(selectedSizeInput ? selectedSizeInput.value : "");
+
+  const setMainImage = (url) => {
+    if (!mainImage || !url) return;
+    mainImage.src = url;
+  };
+
+  thumbs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      thumbs.forEach((b) => b.classList.remove("ring-2", "ring-primary-500/30", "border-primary-500"));
+      btn.classList.add("ring-2", "ring-primary-500/30", "border-primary-500");
+      setMainImage(btn.getAttribute("data-image-thumb"));
+    });
+  });
+
+  const updateAvailability = () => {
+    if (!selectedColor) return;
+    const allowed = new Set((availability[selectedColor] || []).map(String));
+    sizeButtons.forEach((b) => {
+      const size = b.getAttribute("data-size") || "";
+      const canUse = !allowed.size || allowed.has(size);
+      b.disabled = !canUse;
+      b.classList.toggle("opacity-50", !canUse);
+      b.classList.toggle("cursor-not-allowed", !canUse);
+    });
+  };
+
+  const findVariant = () => {
+    const c = selectedColor;
+    const s = selectedSize;
+    if (!c && !s) return null;
+    return variants.find((v) => normalize(v.color) === c && (!s || normalize(v.size) === s)) || null;
+  };
+
+  const syncSelectionToUI = () => {
+    // Highlight colors
+    colorButtons.forEach((b) => {
+      const v = normalize(b.getAttribute("data-color"));
+      const active = v && v === selectedColor;
+      b.classList.toggle("border-primary-500", active);
+      b.classList.toggle("ring-2", active);
+      b.classList.toggle("ring-primary-500/30", active);
+      b.classList.toggle("border-gray-300", !active);
+    });
+
+    // Highlight sizes
+    sizeButtons.forEach((b) => {
+      const v = normalize(b.getAttribute("data-size"));
+      const active = v && v === selectedSize;
+      b.classList.toggle("border-primary-500", active);
+      b.classList.toggle("bg-primary-50", active);
+      b.classList.toggle("text-primary-700", active);
+      b.classList.toggle("border-gray-300", !active);
+    });
+
+    // Text + hidden inputs
+    const cLabel = [...colorButtons].find((b) => normalize(b.getAttribute("data-color")) === selectedColor)?.getAttribute("data-color") || "";
+    const sLabel = [...sizeButtons].find((b) => normalize(b.getAttribute("data-size")) === selectedSize)?.getAttribute("data-size") || "";
+    if (selectedColorSpan && cLabel) selectedColorSpan.textContent = cLabel;
+    if (selectedSizeSpan && sLabel) selectedSizeSpan.textContent = sLabel;
+    if (selectedColorInput) selectedColorInput.value = cLabel;
+    if (selectedSizeInput) selectedSizeInput.value = sLabel;
+
+    updateAvailability();
+
+    // Prefer variant image, then color image, else keep current main image.
+    const variant = findVariant();
+    if (variant && variant.image_url) {
+      setMainImage(variant.image_url);
+      return;
+    }
+    const colorBtn = [...colorButtons].find((b) => normalize(b.getAttribute("data-color")) === selectedColor);
+    const colorImg = colorBtn ? (colorBtn.getAttribute("data-color-image") || "") : "";
+    if (colorImg) setMainImage(colorImg);
+  };
+
+  colorButtons.forEach((b) => {
+    b.addEventListener("click", () => {
+      selectedColor = normalize(b.getAttribute("data-color"));
+      // Auto-pick first available size for this color if current size is not allowed.
+      if (selectedColor) {
+        const allowed = (availability[selectedColor] || []).map(String);
+        if (allowed.length && (!selectedSize || !allowed.some((x) => normalize(x) === selectedSize))) {
+          selectedSize = normalize(allowed[0]);
+        }
+      }
+      syncSelectionToUI();
+    });
+  });
+
+  sizeButtons.forEach((b) => {
+    b.addEventListener("click", () => {
+      if (b.disabled) return;
+      selectedSize = normalize(b.getAttribute("data-size"));
+      syncSelectionToUI();
+    });
+  });
+
+  // Initial sync (ensures availability + highlights are consistent)
+  syncSelectionToUI();
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Order Tracking{% endblock %}
+{% block content %}
+<section class="py-12 lg:py-16">
+  <div class="mx-auto max-w-4xl px-4 lg:px-8">
+    <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:p-8">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 class="font-display text-2xl font-bold text-gray-900 dark:text-white">Order Tracking</h1>
+          {% if order %}
+            <p class="mt-1 text-gray-600 dark:text-gray-400">Order ID: <span class="font-semibold text-gray-900 dark:text-white">{{ order.public_id }}</span></p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Current status: {{ order.get_status_display }}</p>
+          {% else %}
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Enter your order ID to see status updates.</p>
+          {% endif %}
+        </div>
+        <a href="{% url 'orders:track-order' %}" class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900">
+          Track another
+        </a>
+      </div>
+
+      {% if order %}
+        {% if can_view_customer_details %}
+          <div class="mt-6 rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
+            Customer: {{ order.customer.username }} ({{ order.customer.public_id }})
+          </div>
+        {% endif %}
+
+        {% if order.status == 'cancelled' %}
+          <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-100">
+            This order was cancelled.
+          </div>
+        {% endif %}
+
+        <div class="mt-8">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Timeline</h2>
+          <ol class="mt-4 space-y-4">
+            {% for step in steps %}
+              <li class="flex items-start gap-4">
+                <div class="mt-1 flex h-8 w-8 items-center justify-center rounded-full {% if forloop.counter0 <= current_step_index %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-200{% endif %}">
+                  <span class="text-sm font-bold">{{ forloop.counter }}</span>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-medium text-gray-900 dark:text-white">{{ step|capfirst }}</div>
+                  <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {% for ev in tracking_events %}
+                      {% if ev.status == step %}
+                        {{ ev.timestamp }}{% if ev.note %} — {{ ev.note }}{% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        </div>
+
+        <div class="mt-10">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Updates</h2>
+          <div class="mt-4 space-y-3">
+            {% for ev in tracking_events %}
+              <div class="rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
+                <div class="flex items-center justify-between gap-4">
+                  <div class="font-semibold">{{ ev.get_status_display }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ ev.timestamp }}</div>
+                </div>
+                {% if ev.note %}
+                  <div class="mt-2 text-gray-600 dark:text-gray-400">{{ ev.note }}</div>
+                {% endif %}
+              </div>
+            {% empty %}
+              <div class="rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
+                No tracking updates yet.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="mt-8 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-950">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Order not found.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

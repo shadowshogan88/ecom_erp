@@ -1,0 +1,282 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ attribute.name }} Values{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">{{ attribute.name }} Values</h1>
+      <div class="text-muted small">Manage values and use them to generate variants.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-attributes' %}">Back</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong>Attribute</strong>
+      <form method="post" onsubmit="return confirm('Delete this attribute? This will remove it from selection UIs.');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_attribute">
+        <button class="btn btn-sm btn-outline-danger">Delete Attribute</button>
+      </form>
+    </div>
+    <div class="card-body">
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_attribute">
+        <div class="col-12 col-lg-4">
+          <label class="form-label">Name</label>
+          <input name="name" class="form-control" value="{{ attribute.name }}" required>
+        </div>
+        <div class="col-12 col-lg-3">
+          <label class="form-label">Type</label>
+          <select name="attribute_type" class="form-select">
+            <option value="text" {% if attribute.attribute_type == "text" %}selected{% endif %}>Text</option>
+            <option value="color" {% if attribute.attribute_type == "color" %}selected{% endif %}>Color</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-2">
+          <label class="form-label">Sort Order</label>
+          <input name="sort_order" type="number" class="form-control" value="{{ attribute.sort_order }}" min="0">
+        </div>
+        <div class="col-12 col-lg-3">
+          <label class="form-label">Active</label>
+          <div class="form-check mt-1">
+            <input class="form-check-input" type="checkbox" name="is_active" id="attr-active" {% if attribute.is_active %}checked{% endif %}>
+            <label class="form-check-label" for="attr-active">Enabled</label>
+          </div>
+        </div>
+        <div class="col-12">
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white"><strong>Add Value (Tag Input)</strong></div>
+    <div class="card-body">
+      <div class="alert alert-info mb-3">
+        Type a value and press <strong>Add</strong>. It will be available immediately for variant generation (AJAX).
+      </div>
+
+      <div id="value-error" class="alert alert-danger d-none"></div>
+
+      <form id="create-value-form" class="row g-3" enctype="multipart/form-data" onsubmit="return false;">
+        <div class="col-12 col-lg-4">
+          <label class="form-label">Value</label>
+          <input name="value" id="value-input" class="form-control" placeholder="Red / XL / Cotton" required>
+        </div>
+        {% if attribute.attribute_type == "color" %}
+          <div class="col-12 col-lg-2">
+            <label class="form-label">Color Hex</label>
+            <input name="color_code" id="color-code-input" class="form-control" placeholder="#FF0000">
+            <div class="form-text">Optional (#FFF or #FFFFFF)</div>
+          </div>
+          <div class="col-12 col-lg-3">
+            <label class="form-label">Image (Optional)</label>
+            <input name="image" id="value-image-input" type="file" class="form-control" accept="image/*">
+          </div>
+          <div class="col-12 col-lg-3 d-flex align-items-end">
+            <button type="button" class="btn btn-primary w-100" id="add-value-btn">Add</button>
+          </div>
+        {% else %}
+          <div class="col-12 col-lg-4 d-flex align-items-end">
+            <button type="button" class="btn btn-primary w-100" id="add-value-btn">Add</button>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong>Values</strong>
+      <span class="text-muted small">{{ values|length }} total</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm mb-0 align-middle" id="values-table">
+        <thead>
+          <tr>
+            <th>Value</th>
+            <th>Preview</th>
+            <th>Image</th>
+            <th class="text-end">Sort</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="values-tbody">
+          {% for v in values %}
+            <tr data-value-id="{{ v.id }}">
+              <td class="fw-semibold">{{ v.value }}</td>
+              <td>
+                {% if attribute.attribute_type == "color" and v.color_code %}
+                  <span class="d-inline-block rounded border" style="height: 18px; width: 18px; background: {{ v.color_code }};" title="{{ v.color_code }}"></span>
+                  <span class="text-muted small ms-2">{{ v.color_code }}</span>
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if v.image %}
+                  <img src="{{ v.image.url }}" alt="" class="rounded border" style="height: 36px; width: 36px; object-fit: cover;">
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td class="text-end">{{ v.sort_order }}</td>
+              <td>{% if v.is_active %}<span class="badge text-bg-success">Yes</span>{% else %}<span class="badge text-bg-secondary">No</span>{% endif %}</td>
+              <td class="text-end">
+                <form method="post" class="d-inline" onsubmit="return confirm('Delete this value?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete_value">
+                  <input type="hidden" name="value_id" value="{{ v.id }}">
+                  <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="text-muted">No values yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const createUrl = "{% url 'dashboard-api-attribute-value-create' attribute_id=attribute.id %}";
+      const isColor = "{{ attribute.attribute_type }}" === "color";
+
+      const form = document.getElementById("create-value-form");
+      const addBtn = document.getElementById("add-value-btn");
+      const errorBox = document.getElementById("value-error");
+      const valueInput = document.getElementById("value-input");
+      const colorCodeInput = document.getElementById("color-code-input");
+      const imageInput = document.getElementById("value-image-input");
+      const tbody = document.getElementById("values-tbody");
+
+      const getCookie = (name) => {
+        const cookieValue = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith(name + "="));
+        return cookieValue ? decodeURIComponent(cookieValue.split("=")[1]) : "";
+      };
+
+      const showError = (msg) => {
+        if (!msg) {
+          errorBox.classList.add("d-none");
+          errorBox.textContent = "";
+          return;
+        }
+        errorBox.classList.remove("d-none");
+        errorBox.textContent = msg;
+      };
+
+      const escapeHtml = (s) => {
+        return String(s || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll("\"", "&quot;")
+          .replaceAll("'", "&#039;");
+      };
+
+      const addRow = (valueObj) => {
+        const id = valueObj.id;
+        const val = valueObj.value || "";
+        const colorCode = valueObj.color_code || "";
+        const imgUrl = valueObj.image_url || "";
+
+        // Remove "No values yet" placeholder row if present.
+        const emptyRow = tbody.querySelector("tr td.text-muted");
+        if (emptyRow && (emptyRow.textContent || "").toLowerCase().includes("no values")) {
+          emptyRow.parentElement.remove();
+        }
+
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-value-id", String(id));
+        tr.innerHTML = `
+          <td class="fw-semibold">${escapeHtml(val)}</td>
+          <td>
+            ${isColor && colorCode ? `
+              <span class="d-inline-block rounded border" style="height: 18px; width: 18px; background: ${escapeHtml(colorCode)};" title="${escapeHtml(colorCode)}"></span>
+              <span class="text-muted small ms-2">${escapeHtml(colorCode)}</span>
+            ` : `<span class="text-muted">-</span>`}
+          </td>
+          <td>
+            ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" class="rounded border" style="height: 36px; width: 36px; object-fit: cover;">` : `<span class="text-muted">-</span>`}
+          </td>
+          <td class="text-end">0</td>
+          <td><span class="badge text-bg-success">Yes</span></td>
+          <td class="text-end">
+            <form method="post" class="d-inline" onsubmit="return confirm('Delete this value?');">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${escapeHtml(getCookie("csrftoken"))}">
+              <input type="hidden" name="action" value="delete_value">
+              <input type="hidden" name="value_id" value="${escapeHtml(id)}">
+              <button class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        `;
+        tbody.prepend(tr);
+      };
+
+      const submit = async () => {
+        showError("");
+        const value = (valueInput.value || "").trim();
+        if (!value) {
+          showError("Value is required.");
+          return;
+        }
+
+        const fd = new FormData();
+        fd.append("value", value);
+        if (isColor && colorCodeInput && (colorCodeInput.value || "").trim()) {
+          fd.append("color_code", (colorCodeInput.value || "").trim());
+        }
+        if (imageInput && imageInput.files && imageInput.files[0]) {
+          fd.append("image", imageInput.files[0]);
+        }
+
+        addBtn.disabled = true;
+        try {
+          const resp = await fetch(createUrl, {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": getCookie("csrftoken"),
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json"
+            },
+            body: fd
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            showError(data.detail || "Failed to create value.");
+            return;
+          }
+          if (data.value) {
+            addRow(data.value);
+          }
+
+          valueInput.value = "";
+          if (colorCodeInput) colorCodeInput.value = "";
+          if (imageInput) imageInput.value = "";
+        } finally {
+          addBtn.disabled = false;
+        }
+      };
+
+      addBtn.addEventListener("click", submit);
+      valueInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          submit();
+        }
+      });
+    })();
+  </script>
+{% endblock %}

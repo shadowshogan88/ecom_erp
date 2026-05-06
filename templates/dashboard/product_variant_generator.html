@@ -1,0 +1,874 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Variant Generator{% endblock %}
+
+{% block head %}
+  <style>
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .25rem .5rem;
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 999px;
+      background: #f8f9fa;
+      font-size: .875rem;
+    }
+    .chip .btn-close {
+      width: .5rem;
+      height: .5rem;
+      opacity: .6;
+    }
+    .chip:hover .btn-close { opacity: 1; }
+    .color-box {
+      height: 14px;
+      width: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,.15);
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Variant Generator</h1>
+      <div class="text-muted small">{{ product.name }} • {{ product.public_id }}</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-product-edit' public_id=product.public_id %}">Back</a>
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard-attributes' %}">Manage Attributes</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong>Step 1: Select Attribute Values (Tag-Based)</strong>
+      <span class="text-muted small">Select values per attribute, then generate.</span>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        Tip: You can create missing values from <strong>Manage Attributes</strong> (AJAX), then come back here.
+      </div>
+
+      <div class="row g-3">
+        {% for a in attributes %}
+          <div class="col-12 col-lg-6">
+            <div class="border rounded p-3"
+                 data-attribute-card
+                 data-attribute-id="{{ a.id }}"
+                 data-attribute-name="{{ a.name }}"
+                 data-attribute-type="{{ a.attribute_type }}"
+                 data-create-url="{% url 'dashboard-api-attribute-value-create' attribute_id=a.id %}">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-semibold">{{ a.name }}</div>
+                  <div class="text-muted small">Type: {{ a.get_attribute_type_display }}</div>
+                </div>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-attribute-values' attribute_id=a.id %}">Values</a>
+              </div>
+
+              <div class="mt-3">
+                <div class="text-muted small mb-1">Selected</div>
+                <div class="d-flex flex-wrap gap-2" data-chips></div>
+              </div>
+
+              <div class="mt-3">
+                <div class="row g-2">
+                  <div class="col-8">
+                    <select class="form-select form-select-sm" data-attribute-select>
+                      <option value="">Select a value...</option>
+                      {% for v in a.values.all %}
+                        <option
+                          value="{{ v.id }}"
+                          data-value-label="{{ v.value }}"
+                          data-color-code="{{ v.color_code|default:'' }}"
+                          data-image-url="{% if v.image %}{{ v.image.url }}{% endif %}"
+                        >
+                          {{ v.value }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-4">
+                    <button type="button" class="btn btn-sm btn-outline-primary w-100" data-add-existing>Add</button>
+                  </div>
+                </div>
+                <div class="form-text">This is a tag-like selector. Selected items appear as chips above.</div>
+              </div>
+
+              <div class="mt-3 border-top pt-3">
+                <div class="text-muted small mb-1">Quick add new value (AJAX)</div>
+                <div class="row g-2 align-items-end">
+                  <div class="col-12 {% if a.attribute_type == 'color' %}col-md-5{% else %}col-md-8{% endif %}">
+                    <input class="form-control form-control-sm" data-new-value placeholder="Type a new value (e.g. Red / XL)">
+                  </div>
+                  {% if a.attribute_type == "color" %}
+                    <div class="col-6 col-md-3">
+                      <input class="form-control form-control-sm" data-new-color-code placeholder="#FF0000 (optional)">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <input class="form-control form-control-sm" type="file" data-new-image accept="image/*">
+                    </div>
+                    <div class="col-12 col-md-2 d-grid">
+                      <button type="button" class="btn btn-sm btn-primary" data-create-new>Add</button>
+                    </div>
+                  {% else %}
+                    <div class="col-12 col-md-4 d-grid">
+                      <button type="button" class="btn btn-sm btn-primary" data-create-new>Add</button>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="form-text">Creates the value and adds it to the dropdown immediately.</div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <div class="alert alert-warning mb-0">
+              No attributes found. Create attributes first: <a href="{% url 'dashboard-attributes' %}">Attributes</a>.
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong>Step 2: Generate</strong>
+      <span class="badge text-bg-light">Preview: <span id="combo-count">0</span> variants</span>
+    </div>
+    <div class="card-body">
+      <div id="generate-error" class="alert alert-danger d-none"></div>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <button class="btn btn-primary" id="generate-btn">Generate Variants</button>
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#preview-panel" aria-expanded="false" aria-controls="preview-panel">
+          Preview SKUs
+        </button>
+        <span class="text-muted">Duplicates are skipped automatically.</span>
+      </div>
+
+      <div class="collapse mt-3" id="preview-panel">
+        <div class="border rounded p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold">Preview (Real-time)</div>
+            <div class="text-muted small">
+              Showing up to <span class="fw-semibold">200</span> combinations
+              <span id="preview-note" class="ms-1"></span>
+            </div>
+          </div>
+          <div id="preview-error" class="alert alert-danger d-none mb-2"></div>
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>Combination</th>
+                  <th>SKU</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="preview-tbody">
+                <tr><td colspan="3" class="text-muted">Select attribute values to preview.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong>Step 3: Variants</strong>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary" id="refresh-btn">Refresh</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-7">
+          <div class="border rounded p-3">
+            <div class="fw-semibold mb-2">Bulk Edit</div>
+            <div class="row g-2">
+              <div class="col-12 col-md-4">
+                <div class="form-check mb-1">
+                  <input class="form-check-input" type="checkbox" id="bulk-price-enable">
+                  <label class="form-check-label small" for="bulk-price-enable">Update price override</label>
+                </div>
+                <input class="form-control form-control-sm" id="bulk-price" placeholder="(blank clears)" disabled>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="form-check mb-1">
+                  <input class="form-check-input" type="checkbox" id="bulk-stock-enable">
+                  <label class="form-check-label small" for="bulk-stock-enable">Update stock</label>
+                </div>
+                <input class="form-control form-control-sm" id="bulk-stock" type="number" min="0" placeholder="(set value)" disabled>
+              </div>
+              <div class="col-12 col-md-4 d-flex align-items-end">
+                <button class="btn btn-sm btn-primary w-100" id="bulk-apply-btn">Apply to selected</button>
+              </div>
+            </div>
+            <div class="form-text">Select rows using the left checkbox.</div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="border rounded p-3">
+            <div class="fw-semibold mb-2">Rules</div>
+            <ul class="mb-0 small text-muted">
+              <li>No duplicate variant combination (signature-based).</li>
+              <li>SKU is auto-generated and unique.</li>
+              <li>Stock cannot be negative.</li>
+              <li>Only one default variant per product.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="variants-error" class="alert alert-danger d-none"></div>
+
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width: 32px;"><input class="form-check-input" type="checkbox" id="select-all"></th>
+              <th>Color</th>
+              <th>Size</th>
+              <th>Other Attributes</th>
+              <th class="text-end">Price</th>
+              <th class="text-end">Stock</th>
+              <th>SKU</th>
+              <th>Default</th>
+              <th>Variant Image</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="variants-tbody">
+            <tr><td colspan="10" class="text-muted">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index: 1080;"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const endpoints = {
+        dataUrl: "{% url 'dashboard-api-product-variants-data' public_id=product.public_id %}",
+        generateUrl: "{% url 'dashboard-api-generate-variants' public_id=product.public_id %}",
+        previewUrl: "{% url 'dashboard-api-preview-variants' public_id=product.public_id %}",
+        bulkUpdateUrl: "{% url 'dashboard-api-variant-bulk-update' public_id=product.public_id %}",
+        defaultUrlTmpl: "{% url 'dashboard-api-variant-set-default' public_id=product.public_id variant_id=0 %}",
+        deleteUrlTmpl: "{% url 'dashboard-api-variant-delete' public_id=product.public_id variant_id=0 %}",
+        imageUrlTmpl: "{% url 'dashboard-api-variant-image-upload' public_id=product.public_id variant_id=0 %}",
+      };
+
+      const els = {
+        comboCount: document.getElementById("combo-count"),
+        generateBtn: document.getElementById("generate-btn"),
+        generateError: document.getElementById("generate-error"),
+        variantsError: document.getElementById("variants-error"),
+        refreshBtn: document.getElementById("refresh-btn"),
+        tbody: document.getElementById("variants-tbody"),
+        selectAll: document.getElementById("select-all"),
+        bulkPrice: document.getElementById("bulk-price"),
+        bulkPriceEnable: document.getElementById("bulk-price-enable"),
+        bulkStock: document.getElementById("bulk-stock"),
+        bulkStockEnable: document.getElementById("bulk-stock-enable"),
+        bulkApplyBtn: document.getElementById("bulk-apply-btn"),
+        previewPanel: document.getElementById("preview-panel"),
+        previewTbody: document.getElementById("preview-tbody"),
+        previewError: document.getElementById("preview-error"),
+        previewNote: document.getElementById("preview-note"),
+        toastContainer: document.getElementById("toast-container"),
+      };
+
+      const selection = new Map(); // attributeId(string) -> Map(valueId(number) -> valueObj)
+
+      const getCookie = (name) => {
+        const cookieValue = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith(name + "="));
+        return cookieValue ? decodeURIComponent(cookieValue.split("=")[1]) : "";
+      };
+
+      const toast = (message, variant) => {
+        // variant: success | danger | info | warning
+        const bg = variant ? `text-bg-${variant}` : "text-bg-primary";
+        const el = document.createElement("div");
+        el.className = `toast align-items-center ${bg} border-0`;
+        el.setAttribute("role", "alert");
+        el.setAttribute("aria-live", "assertive");
+        el.setAttribute("aria-atomic", "true");
+        el.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        `;
+        els.toastContainer.appendChild(el);
+        const t = bootstrap.Toast.getOrCreateInstance(el, { delay: 2500 });
+        t.show();
+        el.addEventListener("hidden.bs.toast", () => el.remove());
+      };
+
+      const showError = (box, msg) => {
+        if (!msg) {
+          box.classList.add("d-none");
+          box.textContent = "";
+          return;
+        }
+        box.classList.remove("d-none");
+        box.textContent = msg;
+      };
+
+      const escapeHtml = (s) => {
+        return String(s || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll("\"", "&quot;")
+          .replaceAll("'", "&#039;");
+      };
+
+      const computeComboCount = () => {
+        const counts = [];
+        selection.forEach((valueMap) => {
+          const n = valueMap.size;
+          if (n > 0) counts.push(n);
+        });
+        if (!counts.length) return 0;
+        return counts.reduce((acc, n) => acc * n, 1);
+      };
+
+      const updateComboCount = () => {
+        els.comboCount.textContent = String(computeComboCount());
+        schedulePreview();
+      };
+
+      const renderChips = (card) => {
+        const attrId = card.dataset.attributeId;
+        const chipsEl = card.querySelector("[data-chips]");
+        const valueMap = selection.get(attrId) || new Map();
+        chipsEl.innerHTML = "";
+
+        if (!valueMap.size) {
+          chipsEl.innerHTML = `<span class="text-muted small">No selection</span>`;
+          return;
+        }
+
+        [...valueMap.values()].forEach((v) => {
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.innerHTML = `
+            <span>${escapeHtml(v.value || "")}</span>
+            <button type="button" class="btn-close" aria-label="Remove"></button>
+          `;
+          chip.querySelector(".btn-close").addEventListener("click", () => {
+            valueMap.delete(v.id);
+            selection.set(attrId, valueMap);
+            renderChips(card);
+            updateComboCount();
+          });
+          chipsEl.appendChild(chip);
+        });
+      };
+
+      const initAttributeCards = () => {
+        document.querySelectorAll("[data-attribute-card]").forEach((card) => {
+          const attrId = card.dataset.attributeId;
+          selection.set(attrId, new Map());
+          renderChips(card);
+
+          const select = card.querySelector("[data-attribute-select]");
+          const addBtn = card.querySelector("[data-add-existing]");
+          const createBtn = card.querySelector("[data-create-new]");
+          const newValueInput = card.querySelector("[data-new-value]");
+          const newColorCodeInput = card.querySelector("[data-new-color-code]");
+          const newImageInput = card.querySelector("[data-new-image]");
+
+          const addSelectedOptionAsChip = () => {
+            const valueId = parseInt(select.value || "0", 10);
+            if (!valueId) return;
+            const opt = select.selectedOptions[0];
+            const valueObj = {
+              id: valueId,
+              attribute_id: parseInt(attrId, 10),
+              attribute_name: card.dataset.attributeName || "",
+              attribute_type: card.dataset.attributeType || "",
+              value: opt.getAttribute("data-value-label") || opt.textContent || "",
+              color_code: opt.getAttribute("data-color-code") || "",
+              image_url: opt.getAttribute("data-image-url") || "",
+            };
+            const valueMap = selection.get(attrId) || new Map();
+            valueMap.set(valueObj.id, valueObj);
+            selection.set(attrId, valueMap);
+            renderChips(card);
+            updateComboCount();
+            select.value = "";
+          };
+
+          addBtn.addEventListener("click", addSelectedOptionAsChip);
+
+          if (createBtn) {
+            const createValue = async () => {
+              const url = card.dataset.createUrl || "";
+              const value = (newValueInput && newValueInput.value || "").trim();
+              if (!url) return;
+              if (!value) {
+                toast("Value is required.", "warning");
+                return;
+              }
+
+              const fd = new FormData();
+              fd.append("value", value);
+              if (newColorCodeInput && (newColorCodeInput.value || "").trim()) {
+                fd.append("color_code", (newColorCodeInput.value || "").trim());
+              }
+              if (newImageInput && newImageInput.files && newImageInput.files[0]) {
+                fd.append("image", newImageInput.files[0]);
+              }
+
+              createBtn.disabled = true;
+              try {
+                const resp = await fetch(url, {
+                  method: "POST",
+                  headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                  },
+                  body: fd,
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) {
+                  toast(data.detail || "Failed to create value.", "danger");
+                  return;
+                }
+                const v = data.value;
+                if (!v || !v.id) {
+                  toast("Created, but response was invalid.", "warning");
+                  return;
+                }
+
+                // Add option if missing.
+                if (!select.querySelector(`option[value="${String(v.id)}"]`)) {
+                  const opt = document.createElement("option");
+                  opt.value = String(v.id);
+                  opt.textContent = v.value || value;
+                  opt.setAttribute("data-value-label", v.value || value);
+                  opt.setAttribute("data-color-code", v.color_code || "");
+                  opt.setAttribute("data-image-url", v.image_url || "");
+                  select.insertBefore(opt, select.children[1] || null);
+                }
+
+                // Auto add to chips.
+                select.value = String(v.id);
+                addSelectedOptionAsChip();
+
+                if (newValueInput) newValueInput.value = "";
+                if (newColorCodeInput) newColorCodeInput.value = "";
+                if (newImageInput) newImageInput.value = "";
+
+                toast("Value added.", "success");
+              } finally {
+                createBtn.disabled = false;
+              }
+            };
+
+            createBtn.addEventListener("click", createValue);
+            if (newValueInput) {
+              newValueInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  createValue();
+                }
+              });
+            }
+          }
+        });
+        updateComboCount();
+      };
+
+      let previewTimer = null;
+      const schedulePreview = () => {
+        if (!els.previewPanel || !els.previewPanel.classList.contains("show")) return;
+        if (previewTimer) clearTimeout(previewTimer);
+        previewTimer = setTimeout(loadPreview, 250);
+      };
+
+      const loadPreview = async () => {
+        if (!els.previewPanel) return;
+        if (!els.previewPanel.classList.contains("show")) return;
+
+        showError(els.previewError, "");
+        els.previewTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Loading…</td></tr>`;
+
+        const mapping = {};
+        selection.forEach((valueMap, attrId) => {
+          mapping[attrId] = [...valueMap.keys()];
+        });
+
+        if (!Object.values(mapping).some((arr) => arr && arr.length)) {
+          els.previewNote.textContent = "";
+          els.previewTbody.innerHTML = `<tr><td colspan="3" class="text-muted">Select attribute values to preview.</td></tr>`;
+          return;
+        }
+
+        const resp = await fetch(endpoints.previewUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+          },
+          body: JSON.stringify({ attribute_values: mapping }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          showError(els.previewError, data.detail || "Failed to preview.");
+          els.previewTbody.innerHTML = `<tr><td colspan="3" class="text-muted">No preview.</td></tr>`;
+          return;
+        }
+
+        const total = data.count || 0;
+        const limited = !!data.limited;
+        els.previewNote.textContent = limited ? `(limited; total ${total})` : total ? `(total ${total})` : "";
+
+        const rows = data.rows || [];
+        if (!rows.length) {
+          els.previewTbody.innerHTML = `<tr><td colspan="3" class="text-muted">No combinations.</td></tr>`;
+          return;
+        }
+
+        const nameLower = (s) => String(s || "").trim().toLowerCase();
+        const comboLabel = (attrs) => {
+          const parts = (attrs || [])
+            .slice()
+            .sort((a, b) => nameLower(a.attribute_name).localeCompare(nameLower(b.attribute_name)))
+            .map((a) => `${a.attribute_name}: ${a.value}`);
+          return parts.join(", ");
+        };
+
+        els.previewTbody.innerHTML = "";
+        rows.forEach((r) => {
+          const statusBadge = r.exists
+            ? `<span class="badge text-bg-secondary">Exists</span>`
+            : `<span class="badge text-bg-success">New</span>`;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="small">${escapeHtml(comboLabel(r.attributes || []))}</td>
+            <td class="fw-semibold small">${escapeHtml(r.sku || "")}</td>
+            <td>${statusBadge}</td>
+          `;
+          els.previewTbody.appendChild(tr);
+        });
+      };
+
+      const selectedVariantIds = () => {
+        const ids = [];
+        document.querySelectorAll("[data-variant-select]").forEach((cb) => {
+          if (cb.checked) ids.push(parseInt(cb.value, 10));
+        });
+        return ids;
+      };
+
+      const renderVariantsTable = (rows) => {
+        els.tbody.innerHTML = "";
+        if (!rows || !rows.length) {
+          els.tbody.innerHTML = `<tr><td colspan="10" class="text-muted">No variants yet. Generate some.</td></tr>`;
+          return;
+        }
+
+        const findAttr = (attrs, predicate) => (attrs || []).find(predicate);
+        const nameLower = (s) => String(s || "").trim().toLowerCase();
+
+        rows.forEach((row) => {
+          const v = row.variant || {};
+          const attrs = row.attributes || [];
+
+          const colorAttr =
+            findAttr(attrs, (a) => nameLower(a.attribute_name) === "color") ||
+            findAttr(attrs, (a) => nameLower(a.attribute_type) === "color");
+
+          const sizeAttr = findAttr(attrs, (a) => nameLower(a.attribute_name) === "size");
+
+          const other = attrs.filter((a) => a.id !== (colorAttr && colorAttr.id) && a.id !== (sizeAttr && sizeAttr.id));
+
+          const colorHtml = colorAttr
+            ? `
+              <div class="d-flex align-items-center gap-2">
+                ${colorAttr.color_code ? `<span class="color-box" style="background:${escapeHtml(colorAttr.color_code)}" title="${escapeHtml(colorAttr.color_code)}"></span>` : ``}
+                ${colorAttr.image_url ? `<img src="${escapeHtml(colorAttr.image_url)}" alt="" class="rounded border" style="height: 22px; width: 22px; object-fit: cover;">` : ``}
+                <span>${escapeHtml(colorAttr.value)}</span>
+              </div>
+            `
+            : `<span class="text-muted">-</span>`;
+
+          const sizeHtml = sizeAttr ? `<span class="fw-semibold">${escapeHtml(sizeAttr.value)}</span>` : `<span class="text-muted">-</span>`;
+
+          const otherHtml = other.length
+            ? other
+                .map((a) => `<span class="badge text-bg-light me-1">${escapeHtml(a.attribute_name)}: ${escapeHtml(a.value)}</span>`)
+                .join("")
+            : `<span class="text-muted">-</span>`;
+
+          const defaultChecked = v.is_default ? "checked" : "";
+
+          const tr = document.createElement("tr");
+          tr.setAttribute("data-variant-row", "");
+          tr.setAttribute("data-variant-id", String(v.id));
+          tr.innerHTML = `
+            <td><input class="form-check-input" type="checkbox" data-variant-select value="${escapeHtml(v.id)}"></td>
+            <td>${colorHtml}</td>
+            <td>${sizeHtml}</td>
+            <td>${otherHtml}</td>
+            <td class="text-end">
+              <input class="form-control form-control-sm text-end" data-price type="number" step="0.01" min="0" value="${escapeHtml(v.price_override || "")}" placeholder="">
+            </td>
+            <td class="text-end">
+              <input class="form-control form-control-sm text-end" data-stock type="number" min="0" value="${escapeHtml(v.stock ?? 0)}">
+            </td>
+            <td class="small fw-semibold">${escapeHtml(v.sku || "")}</td>
+            <td>
+              <input class="form-check-input" type="radio" name="defaultVariant" data-default-radio ${defaultChecked}>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                ${v.image_url ? `<img src="${escapeHtml(v.image_url)}" alt="" class="rounded border" style="height: 28px; width: 28px; object-fit: cover;">` : `<span class="text-muted small">-</span>`}
+                <input class="form-control form-control-sm" data-image type="file" accept="image/*">
+              </div>
+            </td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-primary" data-save>Save</button>
+                <button type="button" class="btn btn-outline-danger" data-delete>Delete</button>
+              </div>
+            </td>
+          `;
+
+          // Row events
+          tr.querySelector("[data-save]").addEventListener("click", async () => {
+            await saveVariants([v.id], tr.querySelector("[data-price]").value, tr.querySelector("[data-stock]").value);
+          });
+
+          tr.querySelector("[data-delete]").addEventListener("click", async () => {
+            if (!confirm("Delete this variant?")) return;
+            await deleteVariant(v.id);
+          });
+
+          tr.querySelector("[data-default-radio]").addEventListener("change", async () => {
+            await setDefaultVariant(v.id);
+          });
+
+          tr.querySelector("[data-image]").addEventListener("change", async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            await uploadVariantImage(v.id, file);
+          });
+
+          els.tbody.appendChild(tr);
+        });
+      };
+
+      const loadVariants = async () => {
+        showError(els.variantsError, "");
+        els.tbody.innerHTML = `<tr><td colspan="10" class="text-muted">Loading…</td></tr>`;
+        try {
+          const resp = await fetch(endpoints.dataUrl, { headers: { "Accept": "application/json" } });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            showError(els.variantsError, data.detail || "Failed to load variants.");
+            return;
+          }
+          renderVariantsTable(data.rows || []);
+        } catch {
+          showError(els.variantsError, "Failed to load variants.");
+        }
+      };
+
+      const generateVariants = async () => {
+        showError(els.generateError, "");
+        const mapping = {};
+        selection.forEach((valueMap, attrId) => {
+          mapping[attrId] = [...valueMap.keys()];
+        });
+        if (!Object.values(mapping).some((arr) => arr && arr.length)) {
+          showError(els.generateError, "Select at least one value for at least one attribute.");
+          return;
+        }
+
+        els.generateBtn.disabled = true;
+        try {
+          const resp = await fetch(endpoints.generateUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken"),
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+            },
+            body: JSON.stringify({ attribute_values: mapping }),
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            showError(els.generateError, data.detail || "Failed to generate variants.");
+            return;
+          }
+          toast(`Generated. Created ${data.created_count || 0} new variants.`, "success");
+          await loadVariants();
+        } finally {
+          els.generateBtn.disabled = false;
+        }
+      };
+
+      const saveVariants = async (variantIds, priceOverride, stock) => {
+        showError(els.variantsError, "");
+        if (!variantIds || !variantIds.length) {
+          toast("Select at least one variant.", "warning");
+          return;
+        }
+
+        const payload = { variant_ids: variantIds };
+
+        // Price: empty string clears override (uses product price).
+        if (priceOverride !== undefined) {
+          payload.price_override = priceOverride;
+        }
+
+        // Stock: only update when user provided a number.
+        if (stock !== undefined && String(stock).trim() !== "") {
+          payload.stock = parseInt(stock, 10);
+        }
+
+        const resp = await fetch(endpoints.bulkUpdateUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          showError(els.variantsError, data.detail || "Failed to update variants.");
+          return;
+        }
+        toast(`Updated ${data.updated || 0} variant(s).`, "success");
+        await loadVariants();
+      };
+
+      const setDefaultVariant = async (variantId) => {
+        const url = endpoints.defaultUrlTmpl.replace("/0/default/", `/${variantId}/default/`);
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+          },
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          toast(data.detail || "Failed to set default.", "danger");
+          return;
+        }
+        toast("Default variant updated.", "success");
+        await loadVariants();
+      };
+
+      const deleteVariant = async (variantId) => {
+        const url = endpoints.deleteUrlTmpl.replace("/0/delete-ajax/", `/${variantId}/delete-ajax/`);
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+          },
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          toast(data.detail || "Failed to delete variant.", "danger");
+          return;
+        }
+        toast("Variant deleted.", "info");
+        await loadVariants();
+      };
+
+      const uploadVariantImage = async (variantId, file) => {
+        const url = endpoints.imageUrlTmpl.replace("/0/image/", `/${variantId}/image/`);
+        const fd = new FormData();
+        fd.append("image", file);
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+          },
+          body: fd,
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          toast(data.detail || "Failed to upload image.", "danger");
+          return;
+        }
+        toast("Variant image uploaded.", "success");
+        await loadVariants();
+      };
+
+      // Bulk apply
+      els.bulkApplyBtn.addEventListener("click", async () => {
+        const ids = selectedVariantIds();
+        const priceVal = els.bulkPriceEnable && els.bulkPriceEnable.checked ? els.bulkPrice.value : undefined;
+        const stockVal = els.bulkStockEnable && els.bulkStockEnable.checked ? els.bulkStock.value : undefined;
+        await saveVariants(ids, priceVal, stockVal);
+      });
+
+      // Bulk toggles enable/disable inputs
+      if (els.bulkPriceEnable) {
+        els.bulkPriceEnable.addEventListener("change", () => {
+          els.bulkPrice.disabled = !els.bulkPriceEnable.checked;
+          if (!els.bulkPriceEnable.checked) els.bulkPrice.value = "";
+        });
+      }
+      if (els.bulkStockEnable) {
+        els.bulkStockEnable.addEventListener("change", () => {
+          els.bulkStock.disabled = !els.bulkStockEnable.checked;
+          if (!els.bulkStockEnable.checked) els.bulkStock.value = "";
+        });
+      }
+
+      // Select all
+      els.selectAll.addEventListener("change", () => {
+        const checked = els.selectAll.checked;
+        document.querySelectorAll("[data-variant-select]").forEach((cb) => {
+          cb.checked = checked;
+        });
+      });
+
+      // Hook buttons
+      els.refreshBtn.addEventListener("click", loadVariants);
+      els.generateBtn.addEventListener("click", generateVariants);
+
+      // Init
+      initAttributeCards();
+      loadVariants();
+
+      if (els.previewPanel) {
+        els.previewPanel.addEventListener("shown.bs.collapse", () => {
+          loadPreview();
+        });
+      }
+    })();
+  </script>
+{% endblock %}

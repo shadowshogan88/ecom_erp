@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Order History{% endblock %}
+{% block content %}
+<section class="py-12 lg:py-16">
+  <div class="mx-auto max-w-7xl px-4 lg:px-8">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h1 class="font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">Your Orders</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Track and review your recent orders.</p>
+      </div>
+      <a href="{% url 'orders:track-order' %}" class="inline-flex items-center gap-2 font-medium text-primary-600 transition-colors hover:text-primary-700">
+        Track an order
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </a>
+    </div>
+
+    <div class="mt-8 space-y-4">
+      {% for order in orders %}
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Order</div>
+              <div class="mt-1 font-semibold text-gray-900 dark:text-white">{{ order.public_id }}</div>
+              <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ order.created_at }}</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-900 dark:text-gray-200">{{ order.get_status_display }}</span>
+              <a href="{% url 'orders:tracking' public_id=order.public_id %}" class="inline-flex items-center justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
+                View Tracking
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
+          No orders yet.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+

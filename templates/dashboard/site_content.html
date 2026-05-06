@@ -1,0 +1,50 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Site Content{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="mb-0">Site Content</h3>
+      <div class="text-muted small">Top banner + footer text</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-check mb-3">
+          {{ form.banner_enabled }}
+          <label class="form-check-label">Enable top banner</label>
+          {% if form.banner_enabled.errors %}<div class="text-danger small">{{ form.banner_enabled.errors }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Banner HTML</label>
+          {{ form.banner_html }}
+          {% if form.banner_html.help_text %}<div class="form-text">{{ form.banner_html.help_text }}</div>{% endif %}
+          {% if form.banner_html.errors %}<div class="text-danger small">{{ form.banner_html.errors }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Footer text</label>
+          {{ form.footer_text }}
+          {% if form.footer_text.help_text %}<div class="form-text">{{ form.footer_text.help_text }}</div>{% endif %}
+          {% if form.footer_text.errors %}<div class="text-danger small">{{ form.footer_text.errors }}</div>{% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" type="submit">Save</button>
+          <a class="btn btn-outline-secondary" href="{% url 'dashboard-home' %}">Back</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
