@@ -40,7 +40,7 @@
         {% endif %}
       </div>
 
-      <div>
+      <div class="lg:py-4">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="min-w-0">
             <h1 class="break-words font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">{{ product.name }}</h1>
@@ -110,18 +110,51 @@
           </div>
         {% endif %}
 
-        <form method="post" action="{% url 'orders:add-to-cart' product_public_id=product.public_id %}" class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form method="post" action="{% url 'orders:add-to-cart' product_public_id=product.public_id %}" class="mt-8">
           {% csrf_token %}
           <input type="hidden" name="selected_color" id="selected-color-input" value="{{ selected_color }}">
           <input type="hidden" name="selected_size" id="selected-size-input" value="{{ selected_size }}">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Qty</label>
             <input name="quantity" type="number" min="1" value="1" class="w-24 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
           </div>
-          <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-700">
-            Add to Cart
-          </button>
+
+          <div class="mt-4 flex gap-4">
+            <button type="submit" class="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary-600 px-8 py-4 font-semibold text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-500/40">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+              Add to Cart
+            </button>
+            <button type="button" class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gray-300 transition-colors hover:border-red-500 hover:text-red-500 dark:border-gray-600" data-add-to-wishlist="{{ product.public_id }}"{% if product.ui_is_wishlisted %} data-wishlisted="1"{% endif %} aria-label="Add to wishlist">
+              <svg class="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+            </button>
+          </div>
         </form>
+
+        <div class="mt-8 grid grid-cols-2 gap-4">
+          <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50">
+            <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">Free Shipping</p>
+              <p class="text-xs text-gray-500">On orders over $75</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50">
+            <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">60-Day Returns</p>
+              <p class="text-xs text-gray-500">Try it, love it</p>
+            </div>
+          </div>
+        </div>
 
         <div class="mt-6">
           <a href="{% url 'orders:cart' %}" class="inline-flex items-center gap-2 font-medium text-primary-600 transition-colors hover:text-primary-700">
