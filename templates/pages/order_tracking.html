@@ -55,26 +55,6 @@
           </ol>
         </div>
 
-        <div class="mt-10">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Updates</h2>
-          <div class="mt-4 space-y-3">
-            {% for ev in tracking_events %}
-              <div class="rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
-                <div class="flex items-center justify-between gap-4">
-                  <div class="font-semibold">{{ ev.get_status_display }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ ev.timestamp }}</div>
-                </div>
-                {% if ev.note %}
-                  <div class="mt-2 text-gray-600 dark:text-gray-400">{{ ev.note }}</div>
-                {% endif %}
-              </div>
-            {% empty %}
-              <div class="rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
-                No tracking updates yet.
-              </div>
-            {% endfor %}
-          </div>
-        </div>
       {% else %}
         <div class="mt-8 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-950">
           <p class="text-sm text-gray-600 dark:text-gray-400">Order not found.</p>
