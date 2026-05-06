@@ -5,9 +5,9 @@
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
     <nav class="text-sm">
       <ol class="flex flex-wrap items-center gap-2">
-        <li><a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Home</a></li>
+        <li><a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">হোম</a></li>
         <li class="text-gray-400">/</li>
-        <li><a href="{% url 'products:list' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Shop</a></li>
+        <li><a href="{% url 'products:list' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">শপ</a></li>
         <li class="text-gray-400">/</li>
         <li class="font-medium text-gray-900 dark:text-white">{{ product.name }}</li>
       </ol>
@@ -25,7 +25,7 @@
           {% elif product.image %}
             <img id="product-main-image" src="{{ product.image.url }}" alt="{{ product.name }}" class="aspect-square w-full object-cover">
           {% else %}
-            <div class="flex aspect-square w-full items-center justify-center text-sm text-gray-500">No image</div>
+            <div class="flex aspect-square w-full items-center justify-center text-sm text-gray-500">কোন ছবি নেই</div>
           {% endif %}
         </div>
 
@@ -63,7 +63,7 @@
         {% if color_options %}
           <div class="mt-8">
             <h3 class="mb-3 font-semibold text-gray-900 dark:text-white">
-              Color: <span id="selected-color" class="font-normal text-gray-600 dark:text-gray-400">{{ selected_color|default:color_options.0.value }}</span>
+              রং: <span id="selected-color" class="font-normal text-gray-600 dark:text-gray-400">{{ selected_color|default:color_options.0.value }}</span>
             </h3>
             <div class="flex flex-wrap gap-3" id="color-options">
               {% for c in color_options %}
@@ -89,11 +89,11 @@
           <div class="mt-8">
             <div class="mb-3 flex items-center justify-between">
               <h3 class="font-semibold text-gray-900 dark:text-white">
-                Select Size
+                সাইজ নির্বাচন করুন
                 {% if selected_size %}<span class="ms-2 text-sm font-normal text-gray-600 dark:text-gray-400">( <span id="selected-size">{{ selected_size }}</span> )</span>{% endif %}
               </h3>
               <button type="button" class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400" id="size-guide-btn">
-                Size Guide
+                সাইজ গাইড
               </button>
             </div>
             <div class="flex flex-wrap gap-2" id="size-options">
@@ -115,7 +115,7 @@
           <input type="hidden" name="selected_color" id="selected-color-input" value="{{ selected_color }}">
           <input type="hidden" name="selected_size" id="selected-size-input" value="{{ selected_size }}">
           <div class="flex flex-wrap items-center gap-2">
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Qty</label>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">পরিমাণ</label>
             <input name="quantity" type="number" min="1" value="1" class="w-24 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white">
           </div>
 
@@ -124,7 +124,7 @@
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
               </svg>
-              Add to Cart
+              কার্টে যোগ করুন
             </button>
             <button type="button" class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-gray-300 transition-colors hover:border-red-500 hover:text-red-500 dark:border-gray-600" data-add-to-wishlist="{{ product.public_id }}"{% if product.ui_is_wishlisted %} data-wishlisted="1"{% endif %} aria-label="Add to wishlist">
               <svg class="h-6 w-6 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,8 +141,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
             </svg>
             <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">Free Shipping</p>
-              <p class="text-xs text-gray-500">On orders over $75</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">ফ্রি শিপিং</p>
+              <p class="text-xs text-gray-500">$75 এর বেশি অর্ডারে</p>
             </div>
           </div>
           <div class="flex items-center gap-3 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50">
@@ -150,15 +150,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
             <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">60-Day Returns</p>
-              <p class="text-xs text-gray-500">Try it, love it</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">৬০ দিনের রিটার্ন</p>
+              <p class="text-xs text-gray-500">চেষ্টা করুন, পছন্দ না হলে ফেরত</p>
             </div>
           </div>
         </div>
 
         <div class="mt-6">
           <a href="{% url 'orders:cart' %}" class="inline-flex items-center gap-2 font-medium text-primary-600 transition-colors hover:text-primary-700">
-            Go to cart
+            কার্টে যান
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
         </div>

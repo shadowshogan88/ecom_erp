@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
-{% block title %}Wishlist | Stride{% endblock %}
+{% block title %}উইশলিস্ট | Stride{% endblock %}
 {% block content %}
 <section class="bg-gray-50 py-12 dark:bg-gray-900/50 lg:py-16">
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
     <!-- Breadcrumb -->
     <nav class="mb-4 text-sm">
-      <ol class="flex items-center gap-2">
+      <ol class="flex flex-wrap items-center gap-2">
         <li>
-          <a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Home</a>
+          <a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">হোম</a>
         </li>
         <li class="text-gray-400">/</li>
-        <li class="font-medium text-gray-900 dark:text-white">Wishlist</li>
+        <li class="font-medium text-gray-900 dark:text-white">উইশলিস্ট</li>
       </ol>
     </nav>
 
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="font-display text-4xl font-bold text-gray-900 dark:text-white lg:text-5xl">My Wishlist</h1>
+        <h1 class="font-display text-4xl font-bold text-gray-900 dark:text-white lg:text-5xl">আমার উইশলিস্ট</h1>
         <p class="mt-2 text-gray-600 dark:text-gray-400">
-          <span id="wishlist-count">{{ wishlist_count|default:0 }}</span> items saved
+          <span id="wishlist-count">{{ wishlist_count|default:0 }}</span> টি আইটেম সংরক্ষিত
         </p>
       </div>
 
@@ -26,7 +26,7 @@
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
         </svg>
-        Clear All
+        সব মুছুন
       </button>
     </div>
   </div>
@@ -48,7 +48,7 @@
                   {% elif product.image %}
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                   {% else %}
-                    <div class="flex h-full w-full items-center justify-center text-sm text-gray-500">No image</div>
+                    <div class="flex h-full w-full items-center justify-center text-sm text-gray-500">কোন ছবি নেই</div>
                   {% endif %}
 
                   {% if product.ui_hover_image %}
@@ -72,11 +72,11 @@
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        Add to Cart
+                        কার্টে যোগ
                       </button>
                     </form>
 
-                    <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-lg transition-colors hover:bg-gray-100" data-add-to-wishlist="{{ product.public_id }}" data-wishlisted="1" aria-label="Add to wishlist">
+                    <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-lg transition-colors hover:bg-gray-100" data-add-to-wishlist="{{ product.public_id }}" data-wishlisted="1" aria-label="উইশলিস্ট">
                       <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                       </svg>
@@ -219,10 +219,10 @@
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
-                    Add to Cart
+                    কার্টে যোগ
                   </button>
                 </form>
-                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-lg transition-colors hover:bg-gray-100" data-add-to-wishlist="{{ product.public_id }}"{% if product.ui_is_wishlisted %} data-wishlisted="1"{% endif %} aria-label="Add to wishlist">
+                <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-lg transition-colors hover:bg-gray-100" data-add-to-wishlist="{{ product.public_id }}"{% if product.ui_is_wishlisted %} data-wishlisted="1"{% endif %} aria-label="উইশলিস্ট">
                   <svg class="h-5 w-5 {% if product.ui_is_wishlisted %}text-red-500{% else %}text-gray-700{% endif %}" fill="{% if product.ui_is_wishlisted %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                   </svg>

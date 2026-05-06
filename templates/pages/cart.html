@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
-{% block title %}Shopping Cart | Stride{% endblock %}
+{% block title %}শপিং কার্ট | Stride{% endblock %}
 {% block content %}
 <section class="bg-gray-50 py-8 dark:bg-gray-900/50 lg:py-12">
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
     <!-- Breadcrumb -->
     <nav class="mb-4 text-sm">
-      <ol class="flex items-center gap-2">
+      <ol class="flex flex-wrap items-center gap-2">
         <li>
-          <a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Home</a>
+          <a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">হোম</a>
         </li>
         <li class="text-gray-400">/</li>
-        <li class="font-medium text-gray-900 dark:text-white">Shopping Cart</li>
+        <li class="font-medium text-gray-900 dark:text-white">শপিং কার্ট</li>
       </ol>
     </nav>
 
-    <h1 class="font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">Shopping Cart</h1>
+    <h1 class="font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">শপিং কার্ট</h1>
   </div>
 </section>
 
@@ -25,10 +25,10 @@
       <div class="lg:col-span-2">
         <!-- Cart Header -->
         <div class="mb-4 hidden border-b border-gray-200 pb-4 dark:border-gray-800 sm:grid sm:grid-cols-12 sm:gap-4">
-          <div class="col-span-6 text-sm font-medium text-gray-500 dark:text-gray-400">Product</div>
-          <div class="col-span-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">Price</div>
-          <div class="col-span-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">Quantity</div>
-          <div class="col-span-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Total</div>
+          <div class="col-span-6 text-sm font-medium text-gray-500 dark:text-gray-400">পণ্য</div>
+          <div class="col-span-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">দাম</div>
+          <div class="col-span-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">পরিমাণ</div>
+          <div class="col-span-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">মোট</div>
         </div>
 
         <!-- Cart Items List -->
@@ -44,7 +44,7 @@
                     {% elif line.product.image %}
                       <img src="{{ line.product.image.url }}" alt="{{ line.product.name }}" class="h-full w-full object-cover">
                     {% else %}
-                      <div class="flex h-full w-full items-center justify-center text-xs text-gray-500">No image</div>
+                      <div class="flex h-full w-full items-center justify-center text-xs text-gray-500">কোন ছবি নেই</div>
                     {% endif %}
                   </a>
                   <div class="min-w-0 flex-1">
@@ -52,12 +52,12 @@
                       <a href="{% url 'products:detail' slug=line.product.slug %}" class="hover:text-primary-600">{{ line.product.name }}</a>
                     </h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      {% if line.product.category %}Category: {{ line.product.category.name }}{% else %}Standard Item{% endif %}
+                      {% if line.product.category %}ক্যাটাগরি: {{ line.product.category.name }}{% else %}স্ট্যান্ডার্ড আইটেম{% endif %}
                     </p>
                     <form method="post" action="{% url 'orders:remove-from-cart' product_public_id=line.product.public_id %}">
                       {% csrf_token %}
                       <button type="submit" class="remove-item mt-2 text-sm font-medium text-red-600 hover:text-red-700 sm:hidden" data-product-id="{{ line.product.public_id }}">
-                        Remove
+                        সরান
                       </button>
                     </form>
                   </div>
@@ -113,10 +113,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
             </svg>
           </div>
-          <h3 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Your cart is empty</h3>
-          <p class="mt-2 text-gray-600 dark:text-gray-400">Looks like you haven't added anything to your cart yet.</p>
+          <h3 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">আপনার কার্ট খালি</h3>
+          <p class="mt-2 text-gray-600 dark:text-gray-400">দেখা যাচ্ছে আপনি এখনো কার্টে কিছু যোগ করেননি।</p>
           <a href="{% url 'products:list' %}" class="mt-8 inline-flex items-center gap-2 rounded-full bg-primary-600 px-8 py-4 font-semibold text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 hover:shadow-xl">
-            Start Shopping
+            শপিং শুরু করুন
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
             </svg>
@@ -129,11 +129,11 @@
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
             </svg>
-            Continue Shopping
+            শপিং চালিয়ে যান
           </a>
           <form method="post" action="{% url 'orders:clear-cart' %}">
             {% csrf_token %}
-            <button id="clear-cart" type="submit" class="text-sm font-medium text-red-600 hover:text-red-700">Clear Cart</button>
+            <button id="clear-cart" type="submit" class="text-sm font-medium text-red-600 hover:text-red-700">কার্ট খালি করুন</button>
           </form>
         </div>
       </div>
@@ -141,66 +141,60 @@
       <!-- Order Summary -->
       <div class="lg:col-span-1">
         <div class="sticky top-24 rounded-2xl bg-gray-50 p-6 dark:bg-gray-900">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Order Summary</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">অর্ডার সারসংক্ষেপ</h2>
 
-          <!-- Promo Code (UI only) -->
+          <!-- Promo Code -->
           <div class="mt-6">
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Promo Code</label>
-            <div class="mt-2 flex gap-2">
-              <input type="text" placeholder="Enter code" class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-              <button type="button" class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">Apply</button>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">প্রোমো কোড</label>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <input id="coupon-code-input" type="text" value="{{ cart_coupon_code|default:'' }}" placeholder="কোড লিখুন" class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+              <button id="apply-coupon-btn" type="button" class="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600">প্রয়োগ</button>
+              {% if cart_coupon_code %}
+                <button id="remove-coupon-btn" type="button" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">মুছুন</button>
+              {% endif %}
             </div>
-            <p class="mt-2 text-xs text-gray-500">Try: STRIDE20 for 20% off</p>
+
+            <p class="mt-2 text-xs text-gray-500">চেষ্টা করুন: STRIDE20 (২০% ছাড়)</p>
+
+            <p id="coupon-error" class="mt-2 text-xs text-red-600{% if not cart_coupon_error %} hidden{% endif %}">{{ cart_coupon_error }}</p>
+            <p id="coupon-applied" class="mt-2 text-xs text-green-600{% if not cart_coupon_code %} hidden{% endif %}">কুপন ব্যবহার হচ্ছে: <span class="font-semibold">{{ cart_coupon_code }}</span></p>
           </div>
 
           <!-- Summary -->
           <div class="mt-6 space-y-4 border-t border-gray-200 pt-6 dark:border-gray-800">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+              <span class="text-gray-600 dark:text-gray-400">সাবটোটাল</span>
               <span class="font-medium text-gray-900 dark:text-white" id="cart-subtotal">${{ cart_total_amount|default:"0.00" }}</span>
             </div>
 
+            <div id="cart-discount-row" class="flex justify-between text-sm{% if not cart_has_discount %} hidden{% endif %}">
+              <span class="text-gray-600 dark:text-gray-400">ডিসকাউন্ট{% if cart_coupon_code %} ({{ cart_coupon_code }}){% endif %}</span>
+              <span class="font-medium text-gray-900 dark:text-white" id="cart-discount">- ${{ cart_discount_amount|default:"0.00" }}</span>
+            </div>
+
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600 dark:text-gray-400">Shipping</span>
+              <span class="text-gray-600 dark:text-gray-400">শিপিং</span>
               <span class="font-medium text-gray-900 dark:text-white" id="cart-shipping">
-                {% if cart_qualifies_for_free_shipping %}FREE{% else %}${{ cart_shipping_amount|default:"0.00" }}{% endif %}
+                ${{ cart_shipping_amount|default:"0.00" }}
               </span>
             </div>
-            {% if cart_qualifies_for_free_shipping %}
-              <p class="text-xs text-green-600 dark:text-green-400">You qualify for free shipping!</p>
-            {% else %}
-              <p class="text-xs text-gray-500">Free shipping on orders over ${{ cart_free_shipping_threshold|default:"75.00" }}</p>
-            {% endif %}
-
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600 dark:text-gray-400">Estimated Tax</span>
-              <span class="font-medium text-gray-900 dark:text-white" id="cart-tax">${{ cart_tax_amount|default:"0.00" }}</span>
-            </div>
+            <p id="free-shipping-msg" class="text-xs text-green-600 dark:text-green-400{% if not cart_qualifies_for_free_shipping %} hidden{% endif %}">
+              {% if cart_coupon_free_shipping %}
+                কুপনে ফ্রি শিপিং
+              {% else %}
+                ${{ cart_free_shipping_threshold|default:"75.00" }} এর বেশি অর্ডারে ফ্রি শিপিং
+              {% endif %}
+            </p>
 
             <div class="flex justify-between border-t border-gray-200 pt-4 dark:border-gray-800">
-              <span class="text-base font-semibold text-gray-900 dark:text-white">Total</span>
+              <span class="text-base font-semibold text-gray-900 dark:text-white">মোট</span>
               <span class="text-base font-semibold text-gray-900 dark:text-white" id="cart-total">${{ cart_total_with_extras|default:"0.00" }}</span>
             </div>
           </div>
 
           <!-- Checkout Button -->
-          <a href="{% url 'orders:checkout' %}" class="mt-6 block w-full rounded-full bg-primary-600 px-8 py-4 text-center font-semibold text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-500/40">Proceed to Checkout</a>
+          <a href="{% url 'orders:checkout' %}" class="mt-6 block w-full rounded-full bg-primary-600 px-8 py-4 text-center font-semibold text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-500/40">চেকআউট করুন</a>
 
-          <!-- Security Badge -->
-          <div class="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            Secure Checkout
-          </div>
-
-          <!-- Payment Methods -->
-          <div class="mt-4 flex items-center justify-center gap-3">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" class="h-6 opacity-50 grayscale">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="h-6 opacity-50 grayscale">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" class="h-6 opacity-50 grayscale">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Pay" class="h-5 opacity-50 grayscale">
-          </div>
         </div>
       </div>
     </div>
@@ -219,7 +213,7 @@
         </div>
         <div>
           <p class="font-medium text-gray-900 dark:text-white">Free Shipping</p>
-          <p class="text-sm text-gray-500">On orders over $75</p>
+          <p class="text-sm text-gray-500">$75 এর বেশি অর্ডারে</p>
         </div>
       </div>
 
@@ -231,7 +225,7 @@
         </div>
         <div>
           <p class="font-medium text-gray-900 dark:text-white">60-Day Returns</p>
-          <p class="text-sm text-gray-500">Easy returns & exchanges</p>
+          <p class="text-sm text-gray-500">সহজ রিটার্ন ও এক্সচেঞ্জ</p>
         </div>
       </div>
 
@@ -243,7 +237,7 @@
         </div>
         <div>
           <p class="font-medium text-gray-900 dark:text-white">Secure Payment</p>
-          <p class="text-sm text-gray-500">SSL encrypted checkout</p>
+          <p class="text-sm text-gray-500">SSL এনক্রিপ্টেড চেকআউট</p>
         </div>
       </div>
     </div>
@@ -255,6 +249,18 @@
     let v = parseInt(input.value || "1", 10) + delta;
     v = Math.max(1, Math.min(10, v));
     input.value = String(v);
+  };
+
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+  };
+
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
   };
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -273,11 +279,124 @@
     const clearBtn = document.getElementById("clear-cart");
     if (clearBtn) {
       clearBtn.addEventListener("click", (e) => {
-        if (!confirm("Are you sure you want to clear your cart?")) {
+        if (!confirm("আপনি কি নিশ্চিত কার্ট খালি করবেন?")) {
           e.preventDefault();
         }
       });
     }
+
+    const couponInput = document.getElementById("coupon-code-input");
+    const applyBtn = document.getElementById("apply-coupon-btn");
+    let removeBtn = document.getElementById("remove-coupon-btn");
+    const errorEl = document.getElementById("coupon-error");
+    const appliedEl = document.getElementById("coupon-applied");
+
+    const showError = (msg) => {
+      if (!errorEl) return;
+      errorEl.textContent = msg || "";
+      errorEl.classList.toggle("hidden", !msg);
+    };
+
+    const showApplied = (code) => {
+      if (!appliedEl) return;
+      appliedEl.classList.toggle("hidden", !code);
+      appliedEl.textContent = code ? `কুপন ব্যবহার হচ্ছে: ${code}` : "";
+    };
+
+    const ensureRemoveButton = () => {
+      if (removeBtn) return removeBtn;
+      if (!applyBtn) return null;
+      const btn = document.createElement("button");
+      btn.id = "remove-coupon-btn";
+      btn.type = "button";
+      btn.className =
+        "rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700";
+      btn.textContent = "মুছুন";
+      applyBtn.parentElement?.appendChild(btn);
+      removeBtn = btn;
+      return btn;
+    };
+
+    const updateTotals = ({ discount_amount, shipping_amount, total_amount, free_shipping }) => {
+      if (typeof discount_amount === "string") {
+        const row = document.getElementById("cart-discount-row");
+        if (row) {
+          const hasDiscount = discount_amount && discount_amount !== "0.00";
+          row.classList.toggle("hidden", !hasDiscount);
+          setText("cart-discount", `- $${discount_amount}`);
+        }
+      }
+      if (typeof shipping_amount === "string") setText("cart-shipping", `$${shipping_amount}`);
+      if (typeof total_amount === "string") setText("cart-total", `$${total_amount}`);
+
+      const freeMsg = document.getElementById("free-shipping-msg");
+      if (freeMsg && typeof shipping_amount === "string") {
+        const isFree = shipping_amount === "0.00";
+        freeMsg.classList.toggle("hidden", !isFree);
+        if (isFree) {
+          freeMsg.textContent = free_shipping ? "কুপনে ফ্রি শিপিং" : freeMsg.textContent;
+        }
+      }
+    };
+
+    if (applyBtn && couponInput) {
+      applyBtn.addEventListener("click", async () => {
+        showError("");
+        const code = (couponInput.value || "").trim();
+        if (!code) {
+          showError("কুপন কোড লিখুন।");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("code", code);
+        const resp = await fetch("{% url 'orders:apply-coupon' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          body: fd,
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.ok) {
+          showError(data.error || "কুপন প্রয়োগ করা যায়নি।");
+          return;
+        }
+        const appliedCode = (data.code || code).toUpperCase();
+        couponInput.value = appliedCode;
+        showApplied(appliedCode);
+        updateTotals(data);
+        const rb = ensureRemoveButton();
+        attachRemove(rb);
+      });
+    }
+
+    const attachRemove = (btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        showError("");
+        const resp = await fetch("{% url 'orders:remove-coupon' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.ok) {
+          showError(data.error || "কুপন মুছতে সমস্যা হয়েছে।");
+          return;
+        }
+        if (couponInput) couponInput.value = "";
+        showApplied("");
+        const row = document.getElementById("cart-discount-row");
+        if (row) row.classList.add("hidden");
+        const freeMsg = document.getElementById("free-shipping-msg");
+        if (freeMsg) freeMsg.classList.add("hidden");
+        window.location.href = "{% url 'orders:cart' %}";
+      });
+    };
+    attachRemove(removeBtn);
   });
 </script>
 {% endblock %}

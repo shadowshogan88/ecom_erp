@@ -134,6 +134,9 @@ class SiteContentForm(_BootstrapMixin, forms.Form):
         help_text="HTML allowed (will be rendered as-is).",
     )
     footer_text = forms.CharField(required=False, help_text="Plain text (recommended).")
+    free_shipping_enabled = forms.BooleanField(required=False, initial=True)
+    free_shipping_threshold = forms.DecimalField(max_digits=12, decimal_places=2, required=False, min_value=Decimal("0.00"))
+    shipping_fee = forms.DecimalField(max_digits=12, decimal_places=2, required=False, min_value=Decimal("0.00"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

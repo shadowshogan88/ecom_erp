@@ -1,0 +1,152 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{% if mode == "edit" %}Edit Coupon{% else %}New Coupon{% endif %}{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">{% if mode == "edit" %}Edit Coupon{% else %}New Coupon{% endif %}</h1>
+      {% if mode == "edit" and promo %}
+        <div class="text-muted small">Redeemed: {{ promo.times_redeemed }}{% if promo.usage_limit %} / {{ promo.usage_limit }}{% endif %} · Redemptions: {{ redemptions }}</div>
+      {% else %}
+        <div class="text-muted small">Create a new promo code.</div>
+      {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboard-coupons' %}">Back</a>
+      {% if mode == "edit" and promo %}
+        <a class="btn btn-outline-secondary" href="{% url 'dashboard-coupon-analytics' %}?code={{ promo.code }}">Analytics</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <form method="post" class="card card-body">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="row g-3">
+      <div class="col-12 col-lg-4">
+        <label class="form-label">Code</label>
+        {{ form.code }}
+        {% if form.code.errors %}<div class="text-danger small">{{ form.code.errors }}</div>{% endif %}
+      </div>
+      <div class="col-12 col-lg-8">
+        <label class="form-label">Name</label>
+        {{ form.name }}
+        {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Description</label>
+        {{ form.description }}
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label">Discount Type</label>
+        {{ form.discount_type }}
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Percent Off</label>
+        {{ form.percent_off }}
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Amount Off</label>
+        {{ form.amount_off }}
+      </div>
+
+      <div class="col-6 col-md-3">
+        <label class="form-label">Buy Qty</label>
+        {{ form.bxgy_buy_qty }}
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Get Qty</label>
+        {{ form.bxgy_get_qty }}
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="form-check mt-4">
+          {{ form.is_active }}
+          <label class="form-check-label">Active</label>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="form-check mt-4">
+          {{ form.auto_apply }}
+          <label class="form-check-label">Auto Apply</label>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label">Starts At</label>
+        {{ form.starts_at }}
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Ends At</label>
+        {{ form.ends_at }}
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Minimum Order Amount</label>
+        {{ form.min_order_amount }}
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="form-check mt-4">
+          {{ form.one_time_per_user }}
+          <label class="form-check-label">One-time per user</label>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Usage Limit</label>
+        {{ form.usage_limit }}
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <label class="form-label">Allowed Users</label>
+        {{ form.allowed_users }}
+        <div class="form-text">{{ form.allowed_users.help_text }}</div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <label class="form-label">Applicable Products</label>
+        {{ form.applicable_products }}
+        <div class="form-text">{{ form.applicable_products.help_text }}</div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <label class="form-label">Applicable Categories</label>
+        {{ form.applicable_categories }}
+        <div class="form-text">{{ form.applicable_categories.help_text }}</div>
+      </div>
+    </div>
+
+    <hr class="my-4" />
+    <div class="d-flex justify-content-end gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboard-coupons' %}">Cancel</a>
+      <button class="btn btn-primary" type="submit">{% if mode == "edit" %}Save Changes{% else %}Create Coupon{% endif %}</button>
+    </div>
+  </form>
+
+  <script>
+    (function () {
+      const typeEl = document.getElementById("id_discount_type");
+      const percentEl = document.getElementById("id_percent_off")?.closest(".col-12");
+      const amountEl = document.getElementById("id_amount_off")?.closest(".col-12");
+      const buyEl = document.getElementById("id_bxgy_buy_qty")?.closest(".col-6");
+      const getEl = document.getElementById("id_bxgy_get_qty")?.closest(".col-6");
+
+      const applyVisibility = () => {
+        const t = typeEl?.value;
+        const isPercent = t === "percent";
+        const isFixed = t === "fixed";
+        const isBxgy = t === "bxgy";
+
+        if (percentEl) percentEl.style.display = isPercent ? "" : "none";
+        if (amountEl) amountEl.style.display = isFixed ? "" : "none";
+        if (buyEl) buyEl.style.display = isBxgy ? "" : "none";
+        if (getEl) getEl.style.display = isBxgy ? "" : "none";
+      };
+
+      if (typeEl) {
+        typeEl.addEventListener("change", applyVisibility);
+        applyVisibility();
+      }
+    })();
+  </script>
+{% endblock %}

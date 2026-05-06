@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Shop All | Stride{% endblock %}
+{% block title %}সব পণ্য | Stride{% endblock %}
 {% block content %}
 <section class="bg-gray-50 py-12 dark:bg-gray-900/50 lg:py-16">
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
     <!-- Breadcrumb -->
     <nav class="mb-4 text-sm">
-      <ol class="flex items-center gap-2">
+      <ol class="flex flex-wrap items-center gap-2">
         <li>
-          <a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">Home</a>
+          <a href="{% url 'products:home' %}" class="text-gray-500 hover:text-primary-600 dark:text-gray-400">হোম</a>
         </li>
         <li class="text-gray-400">/</li>
-        <li class="font-medium text-gray-900 dark:text-white">Shop All</li>
+        <li class="font-medium text-gray-900 dark:text-white">সব পণ্য</li>
       </ol>
     </nav>
 
-    <h1 class="font-display text-4xl font-bold text-gray-900 dark:text-white lg:text-5xl">Shop All</h1>
-    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">Browse our complete collection of premium footwear</p>
+    <h1 class="font-display text-4xl font-bold text-gray-900 dark:text-white lg:text-5xl">সব পণ্য</h1>
+    <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">আমাদের প্রিমিয়াম ফুটওয়্যারের সম্পূর্ণ কালেকশন দেখুন</p>
   </div>
 </section>
 
@@ -27,11 +27,11 @@
         <div class="sticky top-24 space-y-8">
           <!-- Categories -->
           <div>
-            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Categories</h3>
+            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">ক্যাটাগরি</h3>
             <ul class="space-y-2">
               <li>
                 <a href="{% url 'products:list' %}" class="block rounded-lg px-3 py-2 text-sm transition-colors {% if not active_category %}bg-primary-100 font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-400{% else %}text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800{% endif %}">
-                  All Products
+                  সব পণ্য
                 </a>
               </li>
               {% for c in categories %}
@@ -47,10 +47,10 @@
 
           <!-- Quick Filters -->
           <div>
-            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Quick Filters</h3>
+            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">দ্রুত ফিল্টার</h3>
             <div class="flex flex-wrap gap-2">
-              <a href="{% url 'products:list' %}?filter=new" class="rounded-full px-4 py-2 text-sm font-medium transition-colors {% if active_filter == 'new' %}bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700{% endif %}">New Arrivals</a>
-              <a href="{% url 'products:list' %}?filter=sale" class="rounded-full px-4 py-2 text-sm font-medium transition-colors {% if active_filter == 'sale' %}bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700{% endif %}">Sale</a>
+              <a href="{% url 'products:list' %}?filter=new" class="rounded-full px-4 py-2 text-sm font-medium transition-colors {% if active_filter == 'new' %}bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700{% endif %}">নতুন এসেছে</a>
+              <a href="{% url 'products:list' %}?filter=sale" class="rounded-full px-4 py-2 text-sm font-medium transition-colors {% if active_filter == 'sale' %}bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700{% endif %}">অফার</a>
             </div>
           </div>
         </div>
@@ -61,17 +61,17 @@
         <!-- Toolbar -->
         <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
           <p class="text-gray-600 dark:text-gray-400">
-            Showing <span class="font-semibold text-gray-900 dark:text-white">{{ products_count }}</span> products
+            মোট <span class="font-semibold text-gray-900 dark:text-white">{{ products_count }}</span> টি পণ্য
           </p>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Sort by:</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">সাজান:</span>
               <select id="sort-select" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800">
-                <option value="featured" {% if active_sort == 'featured' %}selected{% endif %}>Featured</option>
-                <option value="newest" {% if active_sort == 'newest' %}selected{% endif %}>Newest</option>
-                <option value="price-low" {% if active_sort == 'price-low' %}selected{% endif %}>Price: Low to High</option>
-                <option value="price-high" {% if active_sort == 'price-high' %}selected{% endif %}>Price: High to Low</option>
-                <option value="rating" {% if active_sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                <option value="featured" {% if active_sort == 'featured' %}selected{% endif %}>ফিচার্ড</option>
+                <option value="newest" {% if active_sort == 'newest' %}selected{% endif %}>নতুন</option>
+                <option value="price-low" {% if active_sort == 'price-low' %}selected{% endif %}>দাম: কম থেকে বেশি</option>
+                <option value="price-high" {% if active_sort == 'price-high' %}selected{% endif %}>দাম: বেশি থেকে কম</option>
+                <option value="rating" {% if active_sort == 'rating' %}selected{% endif %}>সেরা রেটিং</option>
               </select>
             </label>
           </div>
@@ -87,7 +87,7 @@
                   {% if product.ui_primary_image %}
                     <img src="{{ product.ui_primary_image.url }}" alt="{{ product.name }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
                   {% else %}
-                    <div class="flex h-full w-full items-center justify-center text-sm text-gray-500">No image</div>
+                    <div class="flex h-full w-full items-center justify-center text-sm text-gray-500">কোন ছবি নেই</div>
                   {% endif %}
 
                   {% if product.ui_hover_image %}
@@ -111,10 +111,10 @@
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        Add to Cart
+                        কার্টে যোগ
                       </button>
                     </form>
-                    <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-lg transition-colors hover:bg-gray-100" data-add-to-wishlist="{{ product.public_id }}"{% if product.ui_is_wishlisted %} data-wishlisted="1"{% endif %} aria-label="Add to wishlist">
+                    <button class="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-lg transition-colors hover:bg-gray-100" data-add-to-wishlist="{{ product.public_id }}"{% if product.ui_is_wishlisted %} data-wishlisted="1"{% endif %} aria-label="উইশলিস্টে যোগ">
                       <svg class="h-5 w-5 {% if product.ui_is_wishlisted %}text-red-500{% else %}text-gray-700{% endif %}" fill="{% if product.ui_is_wishlisted %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                       </svg>

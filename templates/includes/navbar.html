@@ -3,7 +3,7 @@
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
     <div class="flex h-16 items-center justify-between lg:h-20">
       <!-- Mobile Menu Toggle -->
-      <button type="button" id="mobile-menu-toggle" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden" aria-expanded="false" aria-label="Toggle menu">
+      <button type="button" id="mobile-menu-toggle" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden" aria-expanded="false" aria-label="মেনু টগল করুন">
         <svg class="menu-icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
@@ -24,11 +24,11 @@
 
       <!-- Desktop Navigation -->
       <nav class="hidden items-center gap-8 lg:flex">
-        <a href="{% url 'products:list' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view == 'products:list' or current_view == 'products:detail' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">Shop</a>
-        <a href="{% url 'products:categories' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view == 'products:categories' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">Categories</a>
-        <a href="{% url 'products:list' %}?filter=new" class="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700 dark:text-gray-300">New Arrivals</a>
-        <a href="{% url 'products:list' %}?filter=sale" class="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700 dark:text-gray-300">Sale</a>
-        <a href="{% url 'orders:history' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">Orders</a>
+        <a href="{% url 'products:list' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view == 'products:list' or current_view == 'products:detail' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">শপ</a>
+        <a href="{% url 'products:categories' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view == 'products:categories' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">ক্যাটাগরি</a>
+        <a href="{% url 'products:list' %}?filter=new" class="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700 dark:text-gray-300">নতুন এসেছে</a>
+        <a href="{% url 'products:list' %}?filter=sale" class="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700 dark:text-gray-300">অফার</a>
+        <a href="{% url 'orders:history' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">অর্ডার</a>
         {% if request.user.is_authenticated %}
           {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'staff' %}
             <a href="{% url 'dashboard-home' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view|slice:':10' == 'dashboard-' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">Dashboard</a>
@@ -39,14 +39,14 @@
       <!-- Actions -->
       <div class="flex items-center gap-2">
         <!-- Search -->
-        <button type="button" id="search-toggle" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="Search">
+        <button type="button" id="search-toggle" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="সার্চ">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </button>
 
         <!-- Theme Toggle -->
-        <button type="button" id="theme-toggle" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="Toggle dark mode">
+        <button type="button" id="theme-toggle" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="ডার্ক মোড টগল করুন">
           <svg class="h-5 w-5 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
           </svg>
@@ -56,7 +56,7 @@
         </button>
 
         <!-- Wishlist -->
-        <a href="{% url 'products:wishlist' %}" class="relative hidden rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 sm:block" aria-label="Wishlist">
+        <a href="{% url 'products:wishlist' %}" class="relative hidden rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 sm:block" aria-label="উইশলিস্ট">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
           </svg>
@@ -66,7 +66,7 @@
         </a>
 
         <!-- Cart -->
-        <a href="{% url 'orders:cart' %}" class="relative rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="Cart">
+        <a href="{% url 'orders:cart' %}" class="relative rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="কার্ট">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
           </svg>
@@ -75,6 +75,33 @@
             {{ cart_count|default:0 }}
           </span>
         </a>
+
+        {% if request.user.is_authenticated %}
+          <!-- User menu -->
+          <div class="relative">
+            <button type="button" id="user-menu-button" class="rounded-lg p-2 text-primary-600 hover:bg-gray-100 dark:text-primary-400 dark:hover:bg-gray-800" aria-label="ইউজার মেনু" aria-expanded="false">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 20.118a7.5 7.5 0 0115 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.5-1.632z"></path>
+              </svg>
+            </button>
+
+            <div id="user-menu" class="absolute right-0 z-50 mt-2 hidden w-48 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-950">
+              <div class="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">{{ request.user.username }}</div>
+              <div class="border-t border-gray-100 dark:border-gray-800"></div>
+              <a href="{% url 'orders:history' %}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900">অর্ডার</a>
+              <a href="{% url 'users:logout' %}" class="block px-3 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-900">লগআউট</a>
+            </div>
+          </div>
+        {% else %}
+          <!-- Login -->
+          <a href="{% url 'users:login' %}" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" aria-label="লগইন">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 20.118a7.5 7.5 0 0115 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.5-1.632z"></path>
+            </svg>
+          </a>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -82,11 +109,11 @@
   <!-- Mobile Menu -->
   <div id="mobile-menu" class="hidden border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 lg:hidden">
     <nav class="mx-auto max-w-7xl px-4 py-4">
-      <a href="{% url 'products:list' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view == 'products:list' or current_view == 'products:detail' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">Shop</a>
-      <a href="{% url 'products:categories' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view == 'products:categories' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">Categories</a>
-      <a href="{% url 'products:list' %}?filter=new" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">New Arrivals</a>
-      <a href="{% url 'products:list' %}?filter=sale" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">Sale</a>
-      <a href="{% url 'orders:history' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">Orders</a>
+      <a href="{% url 'products:list' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view == 'products:list' or current_view == 'products:detail' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">শপ</a>
+      <a href="{% url 'products:categories' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view == 'products:categories' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">ক্যাটাগরি</a>
+      <a href="{% url 'products:list' %}?filter=new" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">নতুন এসেছে</a>
+      <a href="{% url 'products:list' %}?filter=sale" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">অফার</a>
+      <a href="{% url 'orders:history' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">অর্ডার</a>
       {% if request.user.is_authenticated %}
         {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'staff' %}
           <a href="{% url 'dashboard-home' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view|slice:':10' == 'dashboard-' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">Dashboard</a>
@@ -94,8 +121,8 @@
       {% endif %}
 
       <div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-        <a href="{% url 'products:wishlist' %}" class="block rounded-lg px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">Wishlist</a>
-        <a href="{% url 'users:login' %}" class="block rounded-lg px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">My Account</a>
+        <a href="{% url 'products:wishlist' %}" class="block rounded-lg px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">উইশলিস্ট</a>
+        <a href="{% url 'users:login' %}" class="block rounded-lg px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">আমার অ্যাকাউন্ট</a>
       </div>
     </nav>
   </div>
@@ -108,17 +135,17 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
         <form method="get" action="{% url 'products:list' %}">
-          <input name="q" type="text" placeholder="Search shoes, brands, categories..." class="w-full rounded-xl border border-gray-200 bg-gray-50 py-4 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white" autofocus>
+          <input name="q" type="text" placeholder="জুতা, ব্র্যান্ড, ক্যাটাগরি খুঁজুন..." class="w-full rounded-xl border border-gray-200 bg-gray-50 py-4 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white" autofocus>
         </form>
       </div>
       <div class="mt-4 flex flex-wrap gap-2">
-        <span class="text-sm text-gray-500">Popular:</span>
+        <span class="text-sm text-gray-500">জনপ্রিয়:</span>
         <a href="{% url 'products:list' %}?q=running" class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">Running</a>
         <a href="{% url 'products:list' %}?q=sneakers" class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">Sneakers</a>
         <a href="{% url 'products:list' %}?q=boots" class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300">Boots</a>
       </div>
       <div class="mt-4 text-center text-sm text-gray-500">
-        Press <kbd class="rounded bg-gray-100 px-2 py-1 font-mono dark:bg-gray-800">Esc</kbd> to close
+        বন্ধ করতে <kbd class="rounded bg-gray-100 px-2 py-1 font-mono dark:bg-gray-800">Esc</kbd> চাপুন
       </div>
     </div>
   </div>

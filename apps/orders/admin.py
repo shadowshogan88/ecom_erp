@@ -19,7 +19,17 @@ class OrderTrackingInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("public_id", "customer", "status", "payment_status", "total_amount", "created_at")
+    list_display = (
+        "public_id",
+        "customer",
+        "status",
+        "payment_status",
+        "subtotal_amount",
+        "discount_amount",
+        "shipping_amount",
+        "total_amount",
+        "created_at",
+    )
     list_filter = ("status", "payment_status", "created_at", "updated_at")
     search_fields = ("public_id", "customer__username", "customer__email", "customer__public_id")
     ordering = ("-created_at",)
@@ -29,6 +39,9 @@ class OrderAdmin(admin.ModelAdmin):
         "sequence_number",
         "sequence_year",
         "sequence_month",
+        "subtotal_amount",
+        "discount_amount",
+        "shipping_amount",
         "total_amount",
         "created_at",
         "updated_at",

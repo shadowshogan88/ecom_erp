@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}Checkout{% endblock %}
+{% block title %}চেকআউট{% endblock %}
 {% block content %}
 <section class="bg-gray-50 py-8 dark:bg-gray-900/50 lg:py-12">
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
-    <h1 class="font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">Checkout</h1>
-    <p class="mt-2 text-gray-600 dark:text-gray-400">Review your cart and place your order.</p>
+    <h1 class="font-display text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">চেকআউট</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">কার্ট দেখে আপনার অর্ডার কনফার্ম করুন।</p>
 
     {% if error %}
       <div class="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200">
@@ -19,17 +19,17 @@
           <form method="post" class="mt-6 space-y-4">
             {% csrf_token %}
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mobile Number</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">মোবাইল নম্বর</label>
               <input name="mobile_number" required inputmode="tel" autocomplete="tel"
-                     placeholder="e.g. 01XXXXXXXXX"
+                     placeholder="যেমন: 01XXXXXXXXX"
                      class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Order Note</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">অর্ডার নোট</label>
               <textarea name="note" rows="3" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
             </div>
             <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-700">
-              Place Order
+              অর্ডার করুন
             </button>
           </form>
         </div>
@@ -40,16 +40,51 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Order Summary</h2>
           <div class="mt-4 space-y-3 text-sm">
             <div class="flex items-center justify-between text-gray-600 dark:text-gray-400">
-              <span>Items</span>
+              <span>আইটেম</span>
               <span>{{ cart_total_items|default:0 }}</span>
             </div>
-            <div class="flex items-center justify-between font-semibold text-gray-900 dark:text-white">
-              <span>Total</span>
-              <span>{{ cart_total_amount|default:0|floatformat:2 }} $</span>
+
+            {% if cart_coupon_code %}
+              <div class="flex items-center justify-between text-gray-600 dark:text-gray-400">
+                <span>কুপন</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ cart_coupon_code }}</span>
+              </div>
+            {% endif %}
+            {% if cart_coupon_error %}
+              <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-200">
+                {{ cart_coupon_error }}
+              </div>
+            {% endif %}
+
+            <div class="flex items-center justify-between text-gray-600 dark:text-gray-400">
+              <span>সাবটোটাল</span>
+              <span class="font-medium text-gray-900 dark:text-white">${{ cart_total_amount|default:"0.00" }}</span>
+            </div>
+
+            <div class="flex items-center justify-between text-gray-600 dark:text-gray-400{% if not cart_has_discount %} hidden{% endif %}">
+              <span>ডিসকাউন্ট{% if cart_coupon_code %} ({{ cart_coupon_code }}){% endif %}</span>
+              <span class="font-medium text-gray-900 dark:text-white">- ${{ cart_discount_amount|default:"0.00" }}</span>
+            </div>
+
+            <div class="flex items-center justify-between text-gray-600 dark:text-gray-400">
+              <span>শিপিং</span>
+              <span class="font-medium text-gray-900 dark:text-white">${{ cart_shipping_amount|default:"0.00" }}</span>
+            </div>
+            <p class="text-xs text-green-600 dark:text-green-400{% if not cart_qualifies_for_free_shipping %} hidden{% endif %}">
+              {% if cart_coupon_free_shipping %}
+                কুপনে ফ্রি শিপিং
+              {% else %}
+                ${{ cart_free_shipping_threshold|default:"75.00" }} এর বেশি অর্ডারে ফ্রি শিপিং
+              {% endif %}
+            </p>
+
+            <div class="flex items-center justify-between border-t border-gray-200 pt-3 font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
+              <span>মোট</span>
+              <span>${{ cart_total_with_extras|default:"0.00" }}</span>
             </div>
           </div>
           <a href="{% url 'orders:cart' %}" class="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 font-semibold text-gray-900 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900">
-            Back to Cart
+            কার্টে ফিরে যান
           </a>
         </div>
       </aside>

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from decimal import Decimal, InvalidOperation
+
 from django.apps import apps
 from django.core.cache import cache
 
@@ -53,6 +55,15 @@ def get_int_setting(key: str, *, default: int = 0) -> int:
         return default
 
 
+def get_decimal_setting(key: str, *, default: Decimal = Decimal("0.00")) -> Decimal:
+    raw = get_setting(key, default=None)
+    if raw is None:
+        return default
+    try:
+        return Decimal(str(raw).strip())
+    except (TypeError, ValueError, InvalidOperation):
+        return default
+
+
 def invalidate_setting_cache(key: str) -> None:
     cache.delete(_cache_key(key))
-

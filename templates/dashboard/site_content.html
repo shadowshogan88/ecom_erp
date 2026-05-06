@@ -35,6 +35,28 @@
           {% if form.footer_text.errors %}<div class="text-danger small">{{ form.footer_text.errors }}</div>{% endif %}
         </div>
 
+        <hr class="my-4"/>
+        <h5 class="mb-3">Shipping</h5>
+
+        <div class="form-check mb-3">
+          {{ form.free_shipping_enabled }}
+          <label class="form-check-label">Enable free shipping</label>
+          {% if form.free_shipping_enabled.errors %}<div class="text-danger small">{{ form.free_shipping_enabled.errors }}</div>{% endif %}
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Free shipping threshold</label>
+            {{ form.free_shipping_threshold }}
+            {% if form.free_shipping_threshold.errors %}<div class="text-danger small">{{ form.free_shipping_threshold.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Shipping fee</label>
+            {{ form.shipping_fee }}
+            {% if form.shipping_fee.errors %}<div class="text-danger small">{{ form.shipping_fee.errors }}</div>{% endif %}
+          </div>
+        </div>
+
         {% if form.non_field_errors %}
           <div class="alert alert-danger">{{ form.non_field_errors }}</div>
         {% endif %}
@@ -47,4 +69,3 @@
     </div>
   </div>
 {% endblock %}
-

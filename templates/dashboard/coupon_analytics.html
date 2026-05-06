@@ -1,0 +1,171 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Coupon Analytics{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Coupon Analytics</h1>
+      <div class="text-muted small">Track coupon usage and discounts.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboard-coupons' %}">Coupons</a>
+    </div>
+  </div>
+
+  <form method="get" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Coupon code (optional)</label>
+        <input class="form-control" name="code" value="{{ code }}" placeholder="e.g. STRIDE20" />
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Start date</label>
+        <input class="form-control" type="date" name="start_date" value="{{ start_date }}" />
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">End date</label>
+        <input class="form-control" type="date" name="end_date" value="{{ end_date }}" />
+      </div>
+      <div class="col-12 col-md-12 d-grid">
+        <button class="btn btn-outline-primary" type="submit">Apply</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="text-muted small">Redemptions</div>
+          <div class="h4 mb-0">{{ totals.redemptions|default:0 }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="text-muted small">Total Discount</div>
+          <div class="h4 mb-0">{{ totals.total_discount|default:"0.00" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="text-muted small">Total Shipping</div>
+          <div class="h4 mb-0">{{ totals.total_shipping|default:"0.00" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <div class="text-muted small">Total Orders</div>
+          <div class="h4 mb-0">{{ totals.total_orders|default:"0.00" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-header bg-white"><strong>Daily Redemptions</strong></div>
+        <div class="card-body">
+          <canvas id="couponChart" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-header bg-white"><strong>Top Coupons</strong></div>
+        <div class="table-responsive">
+          <table class="table mb-0 table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Code</th>
+                <th class="text-center">Redemptions</th>
+                <th class="text-end">Total Discount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in top_coupons %}
+                <tr>
+                  <td class="fw-semibold">{{ row.promo_code__code }}</td>
+                  <td class="text-center">{{ row.redemptions }}</td>
+                  <td class="text-end">{{ row.total_discount|default:"0.00" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3" class="text-center text-muted py-3">No data.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card mt-3">
+        <div class="card-header bg-white"><strong>Recent Redemptions</strong></div>
+        <div class="table-responsive">
+          <table class="table mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>When</th>
+                <th>Code</th>
+                <th>User</th>
+                <th>Order</th>
+                <th class="text-end">Discount</th>
+                <th class="text-end">Shipping</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in recent_redemptions %}
+                <tr>
+                  <td class="text-muted small">{{ r.created_at }}</td>
+                  <td class="fw-semibold">{{ r.promo_code.code }}</td>
+                  <td>{% if r.user %}{{ r.user.username }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                  <td>{% if r.order %}{{ r.order.public_id }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                  <td class="text-end">{{ r.discount_amount }}</td>
+                  <td class="text-end">{{ r.shipping_amount }}</td>
+                  <td class="text-end">{{ r.total_amount }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No redemptions in this range.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const ctx = document.getElementById("couponChart");
+      if (!ctx) return;
+      const labels = {{ chart_labels_json|safe }};
+      const values = {{ chart_values_json|safe }};
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Redemptions",
+            data: values,
+            borderColor: "#0d6efd",
+            backgroundColor: "rgba(13,110,253,.15)",
+            fill: true,
+            tension: .25
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    })();
+  </script>
+{% endblock %}

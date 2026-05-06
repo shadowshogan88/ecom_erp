@@ -56,6 +56,22 @@ def generate_invoice_pdf(*, order) -> bytes:
     y -= 8
     c.line(48, y, width - 48, y)
     y -= 18
+
+    promo = getattr(order, "promo_redemption", None)
+    if promo and getattr(promo, "promo_code", None):
+        c.setFont("Helvetica", 10)
+        c.drawString(48, y, f"Coupon: {promo.promo_code.code}")
+        y -= 14
+
+    c.setFont("Helvetica", 10)
+    c.drawRightString(width - 48, y, f"Subtotal: {order.subtotal_amount}")
+    y -= 14
+    if getattr(order, "discount_amount", 0) and order.discount_amount > 0:
+        c.drawRightString(width - 48, y, f"Discount: -{order.discount_amount}")
+        y -= 14
+    c.drawRightString(width - 48, y, f"Shipping: {order.shipping_amount}")
+    y -= 16
+
     c.setFont("Helvetica-Bold", 12)
     c.drawRightString(width - 48, y, f"Grand Total: {order.total_amount}")
 
@@ -64,4 +80,3 @@ def generate_invoice_pdf(*, order) -> bytes:
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
-

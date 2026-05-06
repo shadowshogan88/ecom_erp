@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Register{% endblock %}
+{% block title %}রেজিস্টার{% endblock %}
 {% block content %}
 <section class="py-12 lg:py-16">
   <div class="mx-auto max-w-md px-4 lg:px-8">
     <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950 lg:p-8">
-      <h1 class="font-display text-2xl font-bold text-gray-900 dark:text-white">Register</h1>
-      <p class="mt-2 text-gray-600 dark:text-gray-400">Create your customer account.</p>
+      <h1 class="font-display text-2xl font-bold text-gray-900 dark:text-white">রেজিস্টার</h1>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">আপনার কাস্টমার অ্যাকাউন্ট তৈরি করুন।</p>
 
       {% if form.errors %}
         <div class="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200">
-          Please fix the errors and try again.
+          অনুগ্রহ করে ভুলগুলো ঠিক করে আবার চেষ্টা করুন।
         </div>
       {% endif %}
 
@@ -17,24 +17,24 @@
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">ইউজারনেম</label>
           <input name="username" type="text" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">পাসওয়ার্ড</label>
           <input name="password1" type="password" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">পাসওয়ার্ড নিশ্চিত করুন</label>
           <input name="password2" type="password" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
         </div>
         <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-700">
-          Create Account
+          অ্যাকাউন্ট তৈরি করুন
         </button>
       </form>
 
       <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-        Already have an account? <a href="{% url 'users:login' %}" class="font-semibold text-primary-600 hover:text-primary-700">Login</a>
+        আগে থেকেই অ্যাকাউন্ট আছে? <a href="{% url 'users:login' %}" class="font-semibold text-primary-600 hover:text-primary-700">লগইন</a>
       </p>
     </div>
   </div>

@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
 
-from core.utils.settings_loader import get_bool_setting, get_int_setting
+from core.utils.settings_loader import get_bool_setting, get_decimal_setting, get_int_setting
 
 from apps.inventory.models import InventoryItem, InventoryTransaction
 from apps.products.models import Product
 
+from apps.coupons.services import apply_coupon, normalize_code, record_redemption
+
+from .cart import CartLine
 from .models import Order, OrderItem
 
 
@@ -75,6 +79,8 @@ def create_order_from_products(
     quantities_by_product_public_id: dict[str, int],
     mobile_number: str,
     note: str = "",
+    promo_code: str | None = None,
+    promo_applied_via_auto: bool = False,
 ) -> Order:
     """
     Creates an order and items from a mapping of Product.public_id -> quantity.
@@ -126,21 +132,63 @@ def create_order_from_products(
         order.save()
 
         items: list[OrderItem] = []
+        cart_lines: list[CartLine] = []
         for product_public_id, quantity in quantities_by_product_public_id.items():
             product = products_by_public_id[product_public_id]
             unit_price = product.final_price
             qty = int(quantity)
+            line_total = unit_price * qty
             items.append(
                 OrderItem(
                     order=order,
                     product=product,
                     quantity=qty,
                     unit_price=unit_price,
-                    line_total=unit_price * qty,
+                    line_total=line_total,
                 )
             )
+            cart_lines.append(
+                CartLine(product=product, quantity=qty, unit_price=unit_price, line_total=line_total)
+            )
         OrderItem.objects.bulk_create(items)
+
+        promo = None
+        discount_amount = Decimal("0.00")
+        coupon_free_shipping = False
+        promo_code_norm = normalize_code(promo_code or "")
+        if promo_code_norm:
+            app = apply_coupon(code=promo_code_norm, cart_lines=cart_lines, user=customer)
+            if app.error:
+                raise ValueError(app.error)
+            promo = app.promo
+            discount_amount = Decimal(app.discount_amount or 0)
+            coupon_free_shipping = bool(app.free_shipping)
+            order.discount_amount = discount_amount
+
+        # Shipping (simple setting-based)
+        free_shipping_enabled = get_bool_setting("shipping.free_enabled", default=True)
+        free_shipping_threshold = get_decimal_setting("shipping.free_threshold", default=Decimal("75.00"))
+        shipping_fee = get_decimal_setting("shipping.fee", default=Decimal("10.00"))
+
+        subtotal_amount = sum((item.line_total for item in items), Decimal("0.00"))
+        qualifies_for_free_shipping = bool(
+            coupon_free_shipping or (free_shipping_enabled and subtotal_amount >= free_shipping_threshold)
+        )
+        order.shipping_amount = Decimal("0.00") if qualifies_for_free_shipping else shipping_fee
+
         order.recalculate_totals(save=True)
+
+        if promo:
+            record_redemption(
+                promo=promo,
+                user=customer,
+                order=order,
+                subtotal_amount=order.subtotal_amount,
+                discount_amount=order.discount_amount,
+                shipping_amount=order.shipping_amount,
+                total_amount=order.total_amount,
+                applied_via_auto=bool(promo_applied_via_auto),
+            )
 
         # Inventory auto-update
         for item in items:

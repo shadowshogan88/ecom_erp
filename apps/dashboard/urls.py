@@ -40,6 +40,14 @@ from .views import (
     dashboard_site_content,
 )
 
+from .coupons_views import (
+    dashboard_coupons_list,
+    dashboard_coupon_create,
+    dashboard_coupon_edit,
+    dashboard_coupon_delete,
+    dashboard_coupon_analytics,
+)
+
 urlpatterns = [
     path("", dashboard_home, name="dashboard-home"),
     path("logout/", dashboard_logout, name="dashboard-logout"),
@@ -47,6 +55,11 @@ urlpatterns = [
     path("reports/", dashboard_reports, name="dashboard-reports"),
     path("reports/export.pdf", dashboard_reports_pdf, name="dashboard-reports-pdf"),
     path("site-content/", dashboard_site_content, name="dashboard-site-content"),
+    path("coupons/", dashboard_coupons_list, name="dashboard-coupons"),
+    path("coupons/new/", dashboard_coupon_create, name="dashboard-coupon-create"),
+    path("coupons/analytics/", dashboard_coupon_analytics, name="dashboard-coupon-analytics"),
+    path("coupons/<int:promo_id>/edit/", dashboard_coupon_edit, name="dashboard-coupon-edit"),
+    path("coupons/<int:promo_id>/delete/", dashboard_coupon_delete, name="dashboard-coupon-delete"),
     path("orders/", dashboard_orders_list, name="dashboard-orders"),
     path("orders/<path:public_id>/", dashboard_order_detail, name="dashboard-order-detail"),
     path("orders/<path:public_id>/invoice.pdf", dashboard_order_invoice_pdf, name="dashboard-order-invoice"),

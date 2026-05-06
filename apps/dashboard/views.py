@@ -214,12 +214,15 @@ def dashboard_site_content(request):
             "site.banner_html",
             default=(
                 '<div class="bg-gradient-to-r from-primary-600 to-primary-500 py-2 text-center text-sm font-medium text-white">'
-                'Free shipping on orders over $75 | Use code <span class="font-bold">STRIDE20</span> for 20% off your first order'
+                '$75 এর বেশি অর্ডারে ফ্রি শিপিং | প্রথম অর্ডারে ২০% ছাড় পেতে কোড ব্যবহার করুন <span class="font-bold">STRIDE20</span>'
                 "</div>"
             ),
         )
         or "",
         "footer_text": get_setting("site.footer_text", default="© 2026 SynckBD. All rights reserved.") or "",
+        "free_shipping_enabled": get_bool_setting("shipping.free_enabled", default=True),
+        "free_shipping_threshold": get_setting("shipping.free_threshold", default="75.00") or "75.00",
+        "shipping_fee": get_setting("shipping.fee", default="10.00") or "10.00",
     }
 
     if request.method == "POST":
@@ -236,6 +239,18 @@ def dashboard_site_content(request):
             Setting.objects.update_or_create(
                 key="site.footer_text",
                 defaults={"value": form.cleaned_data.get("footer_text") or "", "description": "Footer copyright text"},
+            )
+            Setting.objects.update_or_create(
+                key="shipping.free_enabled",
+                defaults={"value": "1" if form.cleaned_data.get("free_shipping_enabled") else "0", "description": "Enable free shipping"},
+            )
+            Setting.objects.update_or_create(
+                key="shipping.free_threshold",
+                defaults={"value": str(form.cleaned_data.get("free_shipping_threshold") or "0.00"), "description": "Free shipping threshold amount"},
+            )
+            Setting.objects.update_or_create(
+                key="shipping.fee",
+                defaults={"value": str(form.cleaned_data.get("shipping_fee") or "0.00"), "description": "Shipping fee when not free"},
             )
             messages.success(request, "Site content updated.")
             return redirect("dashboard-site-content")

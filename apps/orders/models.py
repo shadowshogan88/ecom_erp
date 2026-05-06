@@ -36,6 +36,10 @@ class Order(SoftDeleteModel, TimeStampedModel):
 
     mobile_number = models.CharField(max_length=20)
     note = models.TextField(blank=True)
+
+    subtotal_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    shipping_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
 
     class Meta:
@@ -55,14 +59,25 @@ class Order(SoftDeleteModel, TimeStampedModel):
         return self.status == Order.Status.CANCELLED
 
     def recalculate_totals(self, *, save: bool = True):
-        total = (
+        subtotal = (
             self.items.filter(is_deleted=False).aggregate(total=models.Sum("line_total")).get("total")
             or Decimal("0.00")
         )
-        self.total_amount = total
+        self.subtotal_amount = subtotal
+        discount = self.discount_amount or Decimal("0.00")
+        shipping = self.shipping_amount or Decimal("0.00")
+        self.total_amount = subtotal - discount + shipping
         if save:
-            self.save(update_fields=["total_amount", "updated_at"])
-        return total
+            self.save(
+                update_fields=[
+                    "subtotal_amount",
+                    "discount_amount",
+                    "shipping_amount",
+                    "total_amount",
+                    "updated_at",
+                ]
+            )
+        return self.total_amount
 
     def save(self, *args, **kwargs):
         if self.public_id:
