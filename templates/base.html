@@ -18,9 +18,11 @@
 {% include 'includes/footer.html' %}
 <script type="module">const a=()=>{l(),r(),c(),u(),m()},l=()=>{const s=document.getElementById("theme-toggle");s&&s.addEventListener("click",()=>{const e=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",e?"dark":"light")})},r=()=>{const s=document.getElementById("mobile-menu-toggle"),e=document.getElementById("mobile-menu");if(!s||!e)return;s.addEventListener("click",()=>{const o=s.getAttribute("aria-expanded")==="true";s.setAttribute("aria-expanded",String(!o)),e.classList.toggle("hidden"),document.body.style.overflow=o?"":"hidden"}),window.addEventListener("resize",()=>{window.innerWidth>=1024&&(s.setAttribute("aria-expanded","false"),e.classList.add("hidden"),document.body.style.overflow="")}),e.querySelectorAll("a").forEach(o=>{o.addEventListener("click",()=>{s.setAttribute("aria-expanded","false"),e.classList.add("hidden"),document.body.style.overflow=""})})},c=()=>{const s=document.getElementById("search-toggle"),e=document.getElementById("search-modal");if(!s||!e)return;const n=()=>{e.classList.remove("hidden"),e.classList.add("flex"),document.body.style.overflow="hidden";const t=e.querySelector("input");t&&setTimeout(()=>t.focus(),100)},o=()=>{e.classList.add("hidden"),e.classList.remove("flex"),document.body.style.overflow=""};s.addEventListener("click",n),e.addEventListener("click",t=>{t.target===e&&o()}),document.addEventListener("keydown",t=>{t.key==="Escape"&&!e.classList.contains("hidden")&&o()}),document.addEventListener("keydown",t=>{(t.metaKey||t.ctrlKey)&&t.key==="k"&&(t.preventDefault(),e.classList.contains("hidden")?n():o())})},u=()=>{document.querySelectorAll("[data-add-to-cart]").forEach(e=>{e.addEventListener("click",n=>{if(e.closest("form"))return;n.preventDefault();const o=e.dataset.addToCart;e.classList.add("add-to-cart-animation"),setTimeout(()=>e.classList.remove("add-to-cart-animation"),200),i("কার্টে যোগ হয়েছে!","success");const t=document.querySelector('[aria-label="Cart"] span');if(t){const d=parseInt(t.textContent||"0",10);t.textContent=String(d+1)}console.log("Added to cart:",o)})})},m=()=>{const s=t=>{const o=`; ${document.cookie}`.split(`; ${t}=`);return o.length===2?o.pop().split(";").shift():""},e=(t,o)=>{const n=t.querySelector("svg");if(!n)return;o?(t.dataset.wishlisted="1",n.setAttribute("fill","currentColor"),n.classList.remove("text-gray-700"),n.classList.add("text-red-500")):(delete t.dataset.wishlisted,n.setAttribute("fill","none"),n.classList.remove("text-red-500"),n.classList.add("text-gray-700"))},n=t=>{const o=document.getElementById("wishlist-count");o&&(o.textContent=String(t));const d=document.getElementById("wishlist-badge");d&&(d.textContent=String(t),d.classList.toggle("hidden",t<=0));const a=document.getElementById("clear-wishlist");a&&a.classList.toggle("hidden",t<=0);const r=document.getElementById("wishlist-grid"),l=document.getElementById("empty-wishlist");r&&l&&(r.classList.toggle("hidden",t<=0),l.classList.toggle("hidden",t>0))},o=async(t,o)=>{const d=await fetch(`/wishlist/toggle/${t}/`,{method:"POST",headers:{"X-CSRFToken":s("csrftoken"),"X-Requested-With":"XMLHttpRequest",Accept:"application/json"}}),a=await d.json().catch(()=>({}));if(d.status===401&&a.login_url){window.location.href=a.login_url;return}if(!d.ok){console.error("Wishlist toggle failed",a);return}e(o,!!a.wishlisted),typeof a.count=="number"&&n(a.count),a.wishlisted===!1&&(()=>{const r=document.querySelector(`.wishlist-item[data-product-id="${t}"]`);r&&(r.classList.add("opacity-0","scale-95","transition-all","duration-300"),setTimeout(()=>{r.remove()},300))})(),a.wishlisted?i("উইশলিস্টে যোগ হয়েছে!","success"):i("উইশলিস্ট থেকে সরানো হয়েছে","info")};document.querySelectorAll("[data-add-to-wishlist]").forEach(t=>{e(t,t.dataset.wishlisted==="1"),t.addEventListener("click",d=>{d.preventDefault(),d.stopPropagation();const a=t.dataset.addToWishlist;a&&o(a,t)})});const d=document.getElementById("clear-wishlist");d&&d.addEventListener("click",async()=>{if(!confirm("আপনি কি নিশ্চিত উইশলিস্ট খালি করবেন?"))return;const t=await fetch("/wishlist/clear/",{method:"POST",headers:{"X-CSRFToken":s("csrftoken"),"X-Requested-With":"XMLHttpRequest",Accept:"application/json"}});if(!t.ok)return;document.querySelectorAll(".wishlist-item").forEach(a=>{a.classList.add("opacity-0","scale-95","transition-all","duration-300")}),setTimeout(()=>n(0),300)});const a=document.getElementById("copy-wishlist-link");a&&a.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(window.location.href),i("লিঙ্ক কপি হয়েছে!","success")}catch{}})},i=(s,e="info")=>{const n=document.querySelector(".toast-notification");n&&n.remove();const o=document.createElement("div");o.className=`toast-notification fixed bottom-4 right-4 z-50 flex items-center gap-3 rounded-lg px-4 py-3 shadow-lg transition-all duration-300 transform translate-y-full opacity-0 ${e==="success"?"bg-green-600 text-white":e==="error"?"bg-red-600 text-white":"bg-gray-900 text-white"}`;const t=e==="success"?'<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>':e==="error"?'<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>':'<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 0 0118 0z" /></svg>';o.innerHTML=`${t}<span class="font-medium">${s}</span>`,document.body.appendChild(o),requestAnimationFrame(()=>{o.classList.remove("translate-y-full","opacity-0")}),setTimeout(()=>{o.classList.add("translate-y-full","opacity-0"),setTimeout(()=>o.remove(),300)},3e3)};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",a):a();</script> 
 <script type="module">
-  const btn = document.getElementById("user-menu-button");
-  const menu = document.getElementById("user-menu");
-  if (btn && menu) {
+  const bindDropdown = ({ buttonId, menuId }) => {
+    const btn = document.getElementById(buttonId);
+    const menu = document.getElementById(menuId);
+    if (!btn || !menu) return;
+
     const close = () => {
       menu.classList.add("hidden");
       btn.setAttribute("aria-expanded", "false");
@@ -29,20 +31,25 @@
       menu.classList.remove("hidden");
       btn.setAttribute("aria-expanded", "true");
     };
+
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      e.stopPropagation();
       menu.classList.contains("hidden") ? open() : close();
     });
+
     document.addEventListener("click", (e) => {
       if (menu.classList.contains("hidden")) return;
       if (menu.contains(e.target) || btn.contains(e.target)) return;
       close();
     });
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") close();
     });
-  }
+  };
+
+  bindDropdown({ buttonId: "user-menu-button", menuId: "user-menu" });
+  bindDropdown({ buttonId: "orders-menu-button", menuId: "orders-menu" });
 </script>
 </body> 
 </html>

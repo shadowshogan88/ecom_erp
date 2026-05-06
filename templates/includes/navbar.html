@@ -28,7 +28,18 @@
         <a href="{% url 'products:categories' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view == 'products:categories' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">ক্যাটাগরি</a>
         <a href="{% url 'products:list' %}?filter=new" class="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700 dark:text-gray-300">নতুন এসেছে</a>
         <a href="{% url 'products:list' %}?filter=sale" class="text-sm font-medium transition-colors hover:text-primary-600 text-gray-700 dark:text-gray-300">অফার</a>
-        <a href="{% url 'orders:history' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">অর্ডার</a>
+        <div class="relative">
+          <button type="button" id="orders-menu-button" class="inline-flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary-600 {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}" aria-expanded="false" aria-haspopup="true">
+            অর্ডার
+            <svg class="h-4 w-4 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div id="orders-menu" class="absolute left-0 z-50 mt-2 hidden w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-950">
+            <a href="{% url 'orders:history' %}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900">অর্ডার</a>
+            <a href="{% url 'orders:track-order' %}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900">অর্ডার ট্র্যাক করুন</a>
+          </div>
+        </div>
         {% if request.user.is_authenticated %}
           {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'staff' %}
             <a href="{% url 'dashboard-home' %}" class="text-sm font-medium transition-colors hover:text-primary-600 {% if current_view|slice:':10' == 'dashboard-' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">Dashboard</a>
@@ -113,7 +124,13 @@
       <a href="{% url 'products:categories' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view == 'products:categories' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">ক্যাটাগরি</a>
       <a href="{% url 'products:list' %}?filter=new" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">নতুন এসেছে</a>
       <a href="{% url 'products:list' %}?filter=sale" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">অফার</a>
-      <a href="{% url 'orders:history' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">অর্ডার</a>
+      <div class="rounded-lg">
+        <div class="px-4 py-3 text-base font-medium {% if current_view|slice:':7' == 'orders:' %}text-primary-600{% else %}text-gray-700 dark:text-gray-300{% endif %}">অর্ডার</div>
+        <div class="mb-1 space-y-1 pl-4">
+          <a href="{% url 'orders:history' %}" class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">অর্ডার</a>
+          <a href="{% url 'orders:track-order' %}" class="block rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900">অর্ডার ট্র্যাক করুন</a>
+        </div>
+      </div>
       {% if request.user.is_authenticated %}
         {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'staff' %}
           <a href="{% url 'dashboard-home' %}" class="block rounded-lg px-4 py-3 text-base font-medium transition-colors {% if current_view|slice:':10' == 'dashboard-' %}text-primary-600{% else %}text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900{% endif %}">Dashboard</a>
