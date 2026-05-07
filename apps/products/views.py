@@ -285,6 +285,7 @@ def product_detail(request, slug):
                 "color_code": (getattr(color_av, "color_code", "") or "").strip(),
                 "color_image_url": (color_av.image.url if getattr(color_av, "image", None) else ""),
                 "price": str(v.final_price),
+                "has_price_override": v.price_override is not None,
                 "stock": int(getattr(inv, "quantity_on_hand", 0) or 0),
             }
         )
@@ -293,6 +294,10 @@ def product_detail(request, slug):
     default_variant = next((v for v in variants_data if v.get("is_default")), None) or (variants_data[0] if variants_data else None)
     selected_color = (default_variant.get("color") if default_variant else "") or ""
     selected_size = (default_variant.get("size") if default_variant else "") or ""
+    selected_variant_id = int(default_variant.get("id")) if default_variant and default_variant.get("id") else None
+    selected_variant_price = (default_variant.get("price") if default_variant else None) or str(product.final_price)
+    selected_variant_stock = int(default_variant.get("stock")) if default_variant and default_variant.get("stock") is not None else None
+    selected_variant_has_price_override = bool(default_variant.get("has_price_override")) if default_variant else False
 
     # Convert availability sets -> lists for JSON serialization.
     availability_data = {k: sorted(list(v)) for k, v in availability.items()}
@@ -311,6 +316,10 @@ def product_detail(request, slug):
         "size_options": sorted(list(sizes_by_key.values()), key=_size_sort_key),
         "selected_color": selected_color,
         "selected_size": selected_size,
+        "selected_variant_id": selected_variant_id,
+        "selected_variant_price": selected_variant_price,
+        "selected_variant_stock": selected_variant_stock,
+        "selected_variant_has_price_override": selected_variant_has_price_override,
         "variants_data": variants_data,
         "availability_data": availability_data,
     }

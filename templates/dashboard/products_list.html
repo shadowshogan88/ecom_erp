@@ -34,8 +34,8 @@
             <tr>
               <td>{{ p.name }} <span class="text-muted small">({{ p.public_id }})</span></td>
               <td class="text-muted small">{{ p.category.name|default:"-" }}</td>
-              <td class="text-end">{{ p.price }}</td>
-              <td class="text-end">{{ p.final_price }}</td>
+              <td class="text-end">{{ p.price|floatformat:2 }}</td>
+              <td class="text-end">{{ p.final_price|floatformat:2 }}</td>
               <td class="text-end">{% if p.inventory_item %}{{ p.inventory_item.quantity_on_hand }}{% else %}-{% endif %}</td>
               <td>{% if p.is_active %}Yes{% else %}No{% endif %}</td>
               <td class="text-end">

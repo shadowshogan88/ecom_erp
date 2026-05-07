@@ -6,7 +6,7 @@
       <h1 class="h4 mb-1">Order {{ order.public_id }}</h1>
       <div class="text-muted small">
         Customer: {{ order.customer.username }} |
-        Amount: {{ order.total_amount }} |
+        Amount: {{ order.total_amount|floatformat:2 }} |
         Payment: {{ order.get_payment_status_display }}
       </div>
     </div>
@@ -42,8 +42,8 @@
                 <tr>
                   <td>{{ i.product.name }}</td>
                   <td class="text-end">{{ i.quantity }}</td>
-                  <td class="text-end">{{ i.unit_price }}</td>
-                  <td class="text-end">{{ i.line_total }}</td>
+                  <td class="text-end">{{ i.unit_price|floatformat:2 }}</td>
+                  <td class="text-end">{{ i.line_total|floatformat:2 }}</td>
                 </tr>
               {% empty %}
                 <tr><td colspan="4" class="text-muted">No items.</td></tr>
@@ -182,7 +182,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                   <div>
                     <div class="fw-semibold">{{ p.public_id }}</div>
-                    <div class="text-muted small">{{ p.get_method_display }} • {{ p.get_status_display }} • {{ p.amount }}</div>
+                    <div class="text-muted small">{{ p.get_method_display }} • {{ p.get_status_display }} • {{ p.amount|floatformat:2 }}</div>
                     {% if p.transaction_id %}<div class="text-muted small">TX: {{ p.transaction_id }}</div>{% endif %}
                   </div>
                   <div class="text-muted small text-end">
@@ -195,7 +195,7 @@
                     <div class="text-muted small fw-semibold">Refunds</div>
                     <ul class="mb-2">
                       {% for r in p.refunds.all %}
-                        <li class="small">{{ r.amount }} • {{ r.get_status_display }}{% if r.reason %} — {{ r.reason }}{% endif %}</li>
+                        <li class="small">{{ r.amount|floatformat:2 }} • {{ r.get_status_display }}{% if r.reason %} — {{ r.reason }}{% endif %}</li>
                       {% empty %}
                         <li class="small text-muted">No refunds.</li>
                       {% endfor %}

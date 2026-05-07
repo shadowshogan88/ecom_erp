@@ -44,7 +44,7 @@
       <hr class="my-3"/>
       <div class="d-flex flex-wrap gap-3">
         <div><strong>Total orders:</strong> {{ total_count }}</div>
-        <div><strong>Total amount:</strong> {{ total_amount }}</div>
+        <div><strong>Total amount:</strong> {{ total_amount|floatformat:2 }}</div>
       </div>
       <div class="text-muted small mt-2">Showing first 500 orders (PDF export includes up to 2000 rows).</div>
     </div>
@@ -73,7 +73,7 @@
                 <td>{{ o.customer.username }}</td>
                 <td>{{ o.status }}</td>
                 <td>{{ o.payment_status }}</td>
-                <td class="text-end">{{ o.total_amount }}</td>
+                <td class="text-end">{{ o.total_amount|floatformat:2 }}</td>
                 <td class="text-end">
                   <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard-order-detail' o.public_id %}">View</a>
                 </td>
@@ -87,4 +87,3 @@
     </div>
   </div>
 {% endblock %}
-

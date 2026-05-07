@@ -1,3 +1,4 @@
+{% load static %}
 {% with current_view=request.resolver_match.view_name %}
 <header class="sticky top-0 z-40 border-b border-gray-100 bg-white/95 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/95" data-header>
   <div class="mx-auto max-w-7xl px-4 lg:px-8">
@@ -14,12 +15,17 @@
 
       <!-- Logo -->
       <a href="{% url 'products:home' %}" class="flex items-center gap-2">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600">
-          <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-        </div>
-        <span class="font-display text-xl font-bold text-gray-900 dark:text-white">Stride</span>
+        <img
+          src="{% static 'brand/logo-abr-mart-bd-h40.png' %}"
+          srcset="{% static 'brand/logo-abr-mart-bd-h40.png' %} 1x, {% static 'brand/logo-abr-mart-bd-h80.png' %} 2x"
+          class="h-10 w-auto"
+          alt="ABR MART BD"
+          loading="eager"
+          decoding="async"
+        >
+        <span class="font-display text-lg font-bold tracking-wide text-gray-900 dark:text-white sm:text-xl">
+          ABR MART
+        </span>
       </a>
 
       <!-- Desktop Navigation -->

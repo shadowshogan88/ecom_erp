@@ -44,7 +44,7 @@
       <div class="card stat-card">
         <div class="card-body">
           <div class="text-muted small">Total Discount</div>
-          <div class="h4 mb-0">{{ totals.total_discount|default:"0.00" }}</div>
+          <div class="h4 mb-0">{{ totals.total_discount|default:"0.00"|floatformat:2 }}</div>
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@
       <div class="card stat-card">
         <div class="card-body">
           <div class="text-muted small">Total Shipping</div>
-          <div class="h4 mb-0">{{ totals.total_shipping|default:"0.00" }}</div>
+          <div class="h4 mb-0">{{ totals.total_shipping|default:"0.00"|floatformat:2 }}</div>
         </div>
       </div>
     </div>
@@ -60,7 +60,7 @@
       <div class="card stat-card">
         <div class="card-body">
           <div class="text-muted small">Total Orders</div>
-          <div class="h4 mb-0">{{ totals.total_orders|default:"0.00" }}</div>
+          <div class="h4 mb-0">{{ totals.total_orders|default:"0.00"|floatformat:2 }}</div>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
                 <tr>
                   <td class="fw-semibold">{{ row.promo_code__code }}</td>
                   <td class="text-center">{{ row.redemptions }}</td>
-                  <td class="text-end">{{ row.total_discount|default:"0.00" }}</td>
+                  <td class="text-end">{{ row.total_discount|default:"0.00"|floatformat:2 }}</td>
                 </tr>
               {% empty %}
                 <tr><td colspan="3" class="text-center text-muted py-3">No data.</td></tr>
@@ -126,9 +126,9 @@
                   <td class="fw-semibold">{{ r.promo_code.code }}</td>
                   <td>{% if r.user %}{{ r.user.username }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
                   <td>{% if r.order %}{{ r.order.public_id }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                  <td class="text-end">{{ r.discount_amount }}</td>
-                  <td class="text-end">{{ r.shipping_amount }}</td>
-                  <td class="text-end">{{ r.total_amount }}</td>
+                  <td class="text-end">{{ r.discount_amount|floatformat:2 }}</td>
+                  <td class="text-end">{{ r.shipping_amount|floatformat:2 }}</td>
+                  <td class="text-end">{{ r.total_amount|floatformat:2 }}</td>
                 </tr>
               {% empty %}
                 <tr><td colspan="7" class="text-center text-muted py-3">No redemptions in this range.</td></tr>

@@ -47,12 +47,15 @@
             <p class="mt-2 break-words text-sm text-gray-500 dark:text-gray-400">{{ product.public_id }}</p>
           </div>
           <div class="sm:text-right">
-            {% if product.discount_type != 'none' and product.discount_value %}
-              <div class="font-display text-3xl font-bold text-gray-900 dark:text-white">${{ product.final_price }}</div>
-              <div class="text-sm text-gray-500 line-through dark:text-gray-400">${{ product.price }}</div>
-            {% else %}
-              <div class="font-display text-3xl font-bold text-gray-900 dark:text-white">${{ product.price }}</div>
-            {% endif %}
+            <div class="font-display text-3xl font-bold text-gray-900 dark:text-white">
+              $<span id="selected-price">{{ selected_variant_price }}</span>
+            </div>
+            <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-medium">Stock:</span>
+              <span id="selected-stock">
+                {% if selected_variant_stock is not None %}{{ selected_variant_stock }}{% else %}-{% endif %}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -92,9 +95,6 @@
                 সাইজ নির্বাচন করুন
                 {% if selected_size %}<span class="ms-2 text-sm font-normal text-gray-600 dark:text-gray-400">( <span id="selected-size">{{ selected_size }}</span> )</span>{% endif %}
               </h3>
-              <button type="button" class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400" id="size-guide-btn">
-                সাইজ গাইড
-              </button>
             </div>
             <div class="flex flex-wrap gap-2" id="size-options">
               {% for s in size_options %}
@@ -150,6 +150,8 @@
   const thumbs = document.querySelectorAll("[data-image-thumb]");
   const colorButtons = document.querySelectorAll(".color-option");
   const sizeButtons = document.querySelectorAll(".size-option");
+  const priceEl = document.getElementById("selected-price");
+  const stockEl = document.getElementById("selected-stock");
 
   const selectedColorSpan = document.getElementById("selected-color");
   const selectedSizeSpan = document.getElementById("selected-size");
@@ -193,6 +195,16 @@
     return variants.find((v) => normalize(v.color) === c && (!s || normalize(v.size) === s)) || null;
   };
 
+  const formatPrice = (raw) => {
+    if (raw === null || raw === undefined) return "";
+    const s = String(raw).trim();
+    if (!s) return "";
+    // Keep server formatting if provided; otherwise ensure 2dp for numeric strings.
+    const n = Number(s);
+    if (!Number.isFinite(n)) return s;
+    return n.toFixed(2);
+  };
+
   const syncSelectionToUI = () => {
     // Highlight colors
     colorButtons.forEach((b) => {
@@ -226,6 +238,10 @@
 
     // Prefer variant image, then color image, else keep current main image.
     const variant = findVariant();
+    if (variant) {
+      if (priceEl) priceEl.textContent = formatPrice(variant.price);
+      if (stockEl) stockEl.textContent = (variant.stock === null || variant.stock === undefined) ? "-" : String(variant.stock);
+    }
     if (variant && variant.image_url) {
       setMainImage(variant.image_url);
       return;

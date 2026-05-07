@@ -50,7 +50,7 @@
               <td>{{ o.customer.username }}</td>
               <td>{{ o.get_status_display }}</td>
               <td>{{ o.get_payment_status_display }}</td>
-              <td class="text-end">{{ o.total_amount }}</td>
+              <td class="text-end">{{ o.total_amount|floatformat:2 }}</td>
               <td class="text-muted small">{{ o.created_at }}</td>
             </tr>
           {% empty %}
@@ -79,4 +79,3 @@
     </nav>
   {% endif %}
 {% endblock %}
-

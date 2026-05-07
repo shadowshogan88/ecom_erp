@@ -154,7 +154,7 @@
                     <td class="fw-semibold">{{ v.sku }}</td>
                     <td>{{ v.size|default:"-" }}</td>
                     <td>{{ v.color|default:"-" }}</td>
-                    <td class="text-end">{% if v.price_override != None %}{{ v.price_override }}{% else %}-{% endif %}</td>
+                    <td class="text-end">{% if v.price_override != None %}{{ v.price_override|floatformat:2 }}{% else %}-{% endif %}</td>
                     <td>{% if v.is_active %}Yes{% else %}No{% endif %}</td>
                     <td class="text-end">
                       <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard-product-variant-edit' public_id=product.public_id variant_id=v.id %}">Edit</a>
