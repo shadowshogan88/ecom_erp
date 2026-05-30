@@ -214,7 +214,7 @@ def dashboard_site_content(request):
             "site.banner_html",
             default=(
                 '<div class="bg-gradient-to-r from-primary-600 to-primary-500 py-2 text-center text-sm font-medium text-white">'
-                '$75 এর বেশি অর্ডারে ফ্রি শিপিং | প্রথম অর্ডারে ২০% ছাড় পেতে কোড ব্যবহার করুন <span class="font-bold">STRIDE20</span>'
+                'BDT 75 এর বেশি অর্ডারে ফ্রি শিপিং | প্রথম অর্ডারে ২০% ছাড় পেতে কোড ব্যবহার করুন <span class="font-bold">STRIDE20</span>'
                 "</div>"
             ),
         )

@@ -24,14 +24,20 @@ def site_content(request):
         "site.banner_html",
         default=(
             '<div class="bg-gradient-to-r from-primary-600 to-primary-500 py-2 text-center text-sm font-medium text-white">'
-            "$75 এর বেশি অর্ডারে ফ্রি শিপিং | প্রথম অর্ডারে ২০% ছাড় পেতে কোড ব্যবহার করুন <span class=\"font-bold\">STRIDE20</span>"
+            "BDT 75 এর বেশি অর্ডারে ফ্রি শিপিং | প্রথম অর্ডারে ২০% ছাড় পেতে কোড ব্যবহার করুন <span class=\"font-bold\">STRIDE20</span>"
             "</div>"
         ),
     )
     footer_text = get_setting("site.footer_text", default="© 2026 SynckBD. All rights reserved.")
+    from apps.products.models import ProductSearchKeyword
+
+    popular_search_keywords = list(
+        ProductSearchKeyword.objects.order_by("-search_count", "-last_searched_at").values_list("keyword", flat=True)[:5]
+    )
 
     return {
         "site_banner_enabled": banner_enabled,
         "site_banner_html": banner_html or "",
         "site_footer_text": footer_text or "",
+        "popular_search_keywords": popular_search_keywords,
     }

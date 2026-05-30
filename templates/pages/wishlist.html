@@ -98,9 +98,9 @@
 
                 <!-- Price -->
                 <div class="mt-2 flex items-center gap-2">
-                  <span class="font-semibold text-gray-900 dark:text-white">${{ product.final_price }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">BDT {{ product.final_price }}</span>
                   {% if product.discount_percent %}
-                    <span class="text-sm text-gray-500 line-through">${{ product.price }}</span>
+                    <span class="text-sm text-gray-500 line-through">BDT {{ product.price }}</span>
                   {% endif %}
                 </div>
 
@@ -226,9 +226,9 @@
               </div>
             </div>
             <div class="mt-2 flex items-center gap-2">
-              <span class="font-semibold text-gray-900 dark:text-white">${{ product.final_price }}</span>
+              <span class="font-semibold text-gray-900 dark:text-white">BDT {{ product.final_price }}</span>
               {% if product.discount_percent %}
-                <span class="text-sm text-gray-500 line-through">${{ product.price }}</span>
+                <span class="text-sm text-gray-500 line-through">BDT {{ product.price }}</span>
               {% endif %}
             </div>
           </div>

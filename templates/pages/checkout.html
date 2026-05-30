@@ -15,7 +15,7 @@
     <div class="mt-8 grid gap-8 lg:grid-cols-3">
       <div class="lg:col-span-2">
         <div class="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-950">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Shipping & Notes</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">ডেলিভারি ঠিকানা</h2>
           <form method="post" class="mt-6 space-y-4">
             {% csrf_token %}
             <div>
@@ -25,8 +25,8 @@
                      class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">অর্ডার নোট</label>
-              <textarea name="note" rows="3" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">ডেলিভারি ঠিকানা</label>
+              <textarea name="delivery_address" rows="3" required autocomplete="shipping street-address" placeholder="বাসা/রোড/এলাকা, শহর, জেলা" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
             </div>
             <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-700">
               অর্ডার করুন
@@ -58,29 +58,29 @@
 
             <div class="flex items-center justify-between text-gray-600 dark:text-gray-400">
               <span>সাবটোটাল</span>
-              <span class="font-medium text-gray-900 dark:text-white">${{ cart_total_amount|default:"0.00" }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">BDT {{ cart_total_amount|default:"0.00" }}</span>
             </div>
 
             <div class="flex items-center justify-between text-gray-600 dark:text-gray-400{% if not cart_has_discount %} hidden{% endif %}">
               <span>ডিসকাউন্ট{% if cart_coupon_code %} ({{ cart_coupon_code }}){% endif %}</span>
-              <span class="font-medium text-gray-900 dark:text-white">- ${{ cart_discount_amount|default:"0.00" }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">- BDT {{ cart_discount_amount|default:"0.00" }}</span>
             </div>
 
             <div class="flex items-center justify-between text-gray-600 dark:text-gray-400">
               <span>শিপিং</span>
-              <span class="font-medium text-gray-900 dark:text-white">${{ cart_shipping_amount|default:"0.00" }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">BDT {{ cart_shipping_amount|default:"0.00" }}</span>
             </div>
             <p class="text-xs text-green-600 dark:text-green-400{% if not cart_qualifies_for_free_shipping %} hidden{% endif %}">
               {% if cart_coupon_free_shipping %}
                 কুপনে ফ্রি শিপিং
               {% else %}
-                ${{ cart_free_shipping_threshold|default:"75.00" }} এর বেশি অর্ডারে ফ্রি শিপিং
+                BDT {{ cart_free_shipping_threshold|default:"75.00" }} এর বেশি অর্ডারে ফ্রি শিপিং
               {% endif %}
             </p>
 
             <div class="flex items-center justify-between border-t border-gray-200 pt-3 font-semibold text-gray-900 dark:border-gray-800 dark:text-white">
               <span>মোট</span>
-              <span>${{ cart_total_with_extras|default:"0.00" }}</span>
+              <span>BDT {{ cart_total_with_extras|default:"0.00" }}</span>
             </div>
           </div>
           <a href="{% url 'orders:cart' %}" class="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 font-semibold text-gray-900 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900">

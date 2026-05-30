@@ -35,7 +35,7 @@ class Order(SoftDeleteModel, TimeStampedModel):
     )
 
     mobile_number = models.CharField(max_length=20)
-    note = models.TextField(blank=True)
+    delivery_address = models.TextField()
 
     subtotal_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))

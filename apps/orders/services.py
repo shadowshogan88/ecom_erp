@@ -78,7 +78,7 @@ def create_order_from_products(
     customer,
     quantities_by_product_public_id: dict[str, int],
     mobile_number: str,
-    note: str = "",
+    delivery_address: str,
     promo_code: str | None = None,
     promo_applied_via_auto: bool = False,
 ) -> Order:
@@ -97,6 +97,10 @@ def create_order_from_products(
     mobile_number = (mobile_number or "").strip()
     if not mobile_number:
         raise ValueError("Mobile number is required.")
+
+    delivery_address = (delivery_address or "").strip()
+    if not delivery_address:
+        raise ValueError("Delivery address is required.")
 
     products = list(
         Product.objects.filter(
@@ -127,7 +131,7 @@ def create_order_from_products(
             if inv and inv.quantity_on_hand < qty:
                 raise ValueError(f"Insufficient stock for {product.name}. Available: {inv.quantity_on_hand}")
 
-        order = Order(customer=customer, mobile_number=mobile_number, note=note)
+        order = Order(customer=customer, mobile_number=mobile_number, delivery_address=delivery_address)
         order._tracking_note = "Order placed"
         order.save()
 

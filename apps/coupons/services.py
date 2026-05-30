@@ -50,7 +50,7 @@ def format_coupon_hint(promo: PromoCode | None) -> str:
         amt = Decimal(promo.amount_off or 0)
         if amt <= 0:
             return ""
-        return f"${to_bangla_digits(_trim_decimal(amt))} ছাড়"
+        return f"BDT {to_bangla_digits(_trim_decimal(amt))} ছাড়"
 
     if dtype == PromoCode.DiscountType.BXGY:
         buy_qty = int(promo.bxgy_buy_qty or 0)

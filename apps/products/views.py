@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from .models import Category, Product, ProductVariant, WishlistItem
+from .models import Category, Product, ProductSearchKeyword, ProductVariant, WishlistItem
 
 
 def _enrich_products_for_ui(products):
@@ -51,10 +51,7 @@ def _referer_path(request, *, default: str = "/") -> str:
 
 
 def home(request):
-    latest_products = list(
-        Product.objects.filter(is_active=True).order_by("-created_at")[:8]
-    )
-    return render(request, "pages/home.html", {"latest_products": latest_products})
+    return redirect("products:list")
 
 
 def product_list(request):
@@ -62,6 +59,9 @@ def product_list(request):
     category = (request.GET.get("category") or "").strip()
     quick_filter = (request.GET.get("filter") or "").strip()
     sort = (request.GET.get("sort") or "featured").strip()
+
+    if q:
+        ProductSearchKeyword.record(q)
 
     products = (
         Product.objects.filter(is_active=True)

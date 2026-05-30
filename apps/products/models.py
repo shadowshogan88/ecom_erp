@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.db import IntegrityError, models, transaction
+from django.utils import timezone
 from django.utils.text import slugify
 
 from core.models import SoftDeleteModel, TimeStampedModel
@@ -258,6 +259,49 @@ class WishlistItem(SoftDeleteModel, TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.user_id} -> {self.product_id}"
+
+
+class ProductSearchKeyword(TimeStampedModel):
+    keyword = models.CharField(max_length=255)
+    normalized_keyword = models.CharField(max_length=255, unique=True, db_index=True)
+    search_count = models.PositiveIntegerField(default=0, db_index=True)
+    last_searched_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-search_count", "-last_searched_at"]
+        indexes = [
+            models.Index(fields=["-search_count", "-last_searched_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return self.keyword
+
+    @staticmethod
+    def clean_keyword(value: str) -> str:
+        return " ".join((value or "").strip().split())[:255]
+
+    @classmethod
+    def record(cls, value: str) -> None:
+        keyword = cls.clean_keyword(value)
+        if not keyword:
+            return
+
+        normalized_keyword = keyword.casefold()[:255]
+        now = timezone.now()
+        cls.objects.get_or_create(
+            normalized_keyword=normalized_keyword,
+            defaults={
+                "keyword": keyword,
+                "search_count": 0,
+                "last_searched_at": now,
+            },
+        )
+        cls.objects.filter(normalized_keyword=normalized_keyword).update(
+            keyword=keyword,
+            search_count=models.F("search_count") + 1,
+            last_searched_at=now,
+            updated_at=now,
+        )
 
 
 class Attribute(SoftDeleteModel, TimeStampedModel):

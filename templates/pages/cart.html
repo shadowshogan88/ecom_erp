@@ -65,9 +65,9 @@
 
                 <!-- Price -->
                 <div class="hidden text-center sm:col-span-2 sm:block">
-                  <span class="font-medium text-gray-900 dark:text-white">${{ line.unit_price }}</span>
+                  <span class="font-medium text-gray-900 dark:text-white">BDT {{ line.unit_price }}</span>
                   {% if line.product.discount_percent %}
-                    <span class="block text-sm text-gray-500 line-through">${{ line.product.price }}</span>
+                    <span class="block text-sm text-gray-500 line-through">BDT {{ line.product.price }}</span>
                   {% endif %}
                 </div>
 
@@ -91,7 +91,7 @@
 
                 <!-- Total & Remove -->
                 <div class="hidden items-center justify-end gap-4 sm:col-span-2 sm:flex">
-                  <span class="font-semibold text-gray-900 dark:text-white">${{ line.line_total }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">BDT {{ line.line_total }}</span>
                   <form method="post" action="{% url 'orders:remove-from-cart' product_public_id=line.product.public_id %}">
                     {% csrf_token %}
                     <button type="submit" class="remove-item text-gray-400 hover:text-red-600" data-product-id="{{ line.product.public_id }}" aria-label="Remove item">
@@ -165,31 +165,31 @@
           <div class="mt-6 space-y-4 border-t border-gray-200 pt-6 dark:border-gray-800">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-400">সাবটোটাল</span>
-              <span class="font-medium text-gray-900 dark:text-white" id="cart-subtotal">${{ cart_total_amount|default:"0.00" }}</span>
+              <span class="font-medium text-gray-900 dark:text-white" id="cart-subtotal">BDT {{ cart_total_amount|default:"0.00" }}</span>
             </div>
 
             <div id="cart-discount-row" class="flex justify-between text-sm{% if not cart_has_discount %} hidden{% endif %}">
               <span class="text-gray-600 dark:text-gray-400" id="cart-discount-label">ডিসকাউন্ট{% if cart_coupon_hint %} ({{ cart_coupon_hint }}){% endif %}</span>
-              <span class="font-medium text-gray-900 dark:text-white" id="cart-discount">- ${{ cart_discount_amount|default:"0.00" }}</span>
+              <span class="font-medium text-gray-900 dark:text-white" id="cart-discount">- BDT {{ cart_discount_amount|default:"0.00" }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
               <span class="text-gray-600 dark:text-gray-400">শিপিং</span>
               <span class="font-medium text-gray-900 dark:text-white" id="cart-shipping">
-                ${{ cart_shipping_amount|default:"0.00" }}
+                BDT {{ cart_shipping_amount|default:"0.00" }}
               </span>
             </div>
             <p id="free-shipping-msg" class="text-xs text-green-600 dark:text-green-400{% if not cart_qualifies_for_free_shipping %} hidden{% endif %}">
               {% if cart_coupon_free_shipping %}
                 কুপনে ফ্রি শিপিং
               {% else %}
-                ${{ cart_free_shipping_threshold|default:"75.00" }} এর বেশি অর্ডারে ফ্রি শিপিং
+                BDT {{ cart_free_shipping_threshold|default:"75.00" }} এর বেশি অর্ডারে ফ্রি শিপিং
               {% endif %}
             </p>
 
             <div class="flex justify-between border-t border-gray-200 pt-4 dark:border-gray-800">
               <span class="text-base font-semibold text-gray-900 dark:text-white">মোট</span>
-              <span class="text-base font-semibold text-gray-900 dark:text-white" id="cart-total">${{ cart_total_with_extras|default:"0.00" }}</span>
+              <span class="text-base font-semibold text-gray-900 dark:text-white" id="cart-total">BDT {{ cart_total_with_extras|default:"0.00" }}</span>
             </div>
           </div>
 
@@ -214,7 +214,7 @@
         </div>
         <div>
           <p class="font-medium text-gray-900 dark:text-white">Free Shipping</p>
-          <p class="text-sm text-gray-500">$75 এর বেশি অর্ডারে</p>
+          <p class="text-sm text-gray-500">BDT 75 এর বেশি অর্ডারে</p>
         </div>
       </div>
 
@@ -352,11 +352,11 @@
         if (row) {
           const hasDiscount = discount_amount && discount_amount !== "0.00";
           row.classList.toggle("hidden", !hasDiscount);
-          setText("cart-discount", `- $${discount_amount}`);
+          setText("cart-discount", `- BDT ${discount_amount}`);
         }
       }
-      if (typeof shipping_amount === "string") setText("cart-shipping", `$${shipping_amount}`);
-      if (typeof total_amount === "string") setText("cart-total", `$${total_amount}`);
+      if (typeof shipping_amount === "string") setText("cart-shipping", `BDT ${shipping_amount}`);
+      if (typeof total_amount === "string") setText("cart-total", `BDT ${total_amount}`);
 
       const freeMsg = document.getElementById("free-shipping-msg");
       if (freeMsg && typeof shipping_amount === "string") {

@@ -221,7 +221,7 @@ def checkout_view(request):
 
     error = ""
     if request.method == "POST":
-        note = (request.POST.get("note") or "").strip()
+        delivery_address = (request.POST.get("delivery_address") or "").strip()
         mobile_number = (request.POST.get("mobile_number") or "").strip()
         cart = get_cart(request)
         coupon_is_auto = get_applied_coupon_is_auto(request)
@@ -230,7 +230,7 @@ def checkout_view(request):
                 customer=request.user,
                 quantities_by_product_public_id=cart,
                 mobile_number=mobile_number,
-                note=note,
+                delivery_address=delivery_address,
                 promo_code=coupon_code,
                 promo_applied_via_auto=bool(coupon_is_auto),
             )

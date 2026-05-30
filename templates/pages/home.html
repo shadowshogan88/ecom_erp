@@ -34,7 +34,7 @@
                 </h3>
               </div>
               <div class="shrink-0 text-right">
-                <div class="font-semibold text-gray-900 dark:text-white">${{ product.price }}</div>
+                <div class="font-semibold text-gray-900 dark:text-white">BDT {{ product.price }}</div>
               </div>
             </div>
             <form method="post" action="{% url 'orders:add-to-cart' product_public_id=product.public_id %}" class="mt-4">

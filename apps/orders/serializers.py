@@ -43,7 +43,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "status",
             "payment_status",
             "mobile_number",
-            "note",
+            "delivery_address",
             "subtotal_amount",
             "discount_amount",
             "shipping_amount",
@@ -64,7 +64,7 @@ class OrderCreateItemInputSerializer(serializers.Serializer):
 class OrderCreateSerializer(serializers.Serializer):
     items = OrderCreateItemInputSerializer(many=True)
     mobile_number = serializers.CharField()
-    note = serializers.CharField(required=False, allow_blank=True, default="")
+    delivery_address = serializers.CharField()
 
     def validate_items(self, items):
         if not items:
@@ -77,7 +77,7 @@ class OrderCreateSerializer(serializers.Serializer):
 
         requested_items = validated_data["items"]
         mobile_number = validated_data.get("mobile_number") or ""
-        note = validated_data.get("note", "")
+        delivery_address = validated_data.get("delivery_address") or ""
 
         quantities_by_product_public_id: dict[str, int] = defaultdict(int)
         for item in requested_items:
@@ -88,7 +88,7 @@ class OrderCreateSerializer(serializers.Serializer):
                 customer=customer,
                 quantities_by_product_public_id=dict(quantities_by_product_public_id),
                 mobile_number=mobile_number,
-                note=note,
+                delivery_address=delivery_address,
             )
         except DuplicateOrderError as exc:
             raise serializers.ValidationError({"detail": str(exc)})

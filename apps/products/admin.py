@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product, ProductImage, ProductVariant, WishlistItem
+from .models import Category, Product, ProductImage, ProductSearchKeyword, ProductVariant, WishlistItem
 
 
 @admin.register(Category)
@@ -40,3 +40,11 @@ class WishlistItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ("user", "product")
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "deleted_at")
+
+
+@admin.register(ProductSearchKeyword)
+class ProductSearchKeywordAdmin(admin.ModelAdmin):
+    list_display = ("keyword", "search_count", "last_searched_at", "created_at")
+    search_fields = ("keyword", "normalized_keyword")
+    ordering = ("-search_count", "-last_searched_at")
+    readonly_fields = ("created_at", "updated_at")
